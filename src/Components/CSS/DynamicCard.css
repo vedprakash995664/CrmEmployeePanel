@@ -1,0 +1,145 @@
+/* Wrapper for all cards */
+.dynamic-card-outer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+    margin-bottom: 200px;
+}
+.dynamic-search-box {
+    margin-bottom: 20px;
+    text-align: center;
+    z-index: 1;
+    width: 100%;
+    position: sticky;
+    top: 0px;
+  }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .pagination button {
+    padding: 5px 10px;
+    margin: 0 20px;
+    /* background-color: #EDF1FF; */
+    border: none;
+    cursor: pointer;
+  }
+  
+  .pagination button:disabled {
+    /* background-color: #ddd; */
+    cursor: not-allowed;
+  }
+  
+  .dynamic-search-box  .search-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+/* Style for individual cards */
+.Dynamic-card {
+    height: 320px;
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+/* Hover effect for cards */
+.Dynamic-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Card content area */
+.dynamic-card-details-body {
+    height: 75%;
+    display: flex;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Lead information container */
+.dynamic-card-details {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-data {
+    font-family: 'Poppins', serif;
+    line-height: 1.5;
+}
+
+.card-data dt {
+    font-weight: 600;
+    color: #555;
+}
+
+.card-data dd {
+    color: #777;
+    margin: 5px 0;
+}
+
+/* Action buttons section */
+.dynamic-card-calls {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 15px;
+    align-items: center;
+    padding-top: 20px;
+}
+
+.dynamic-card-calls button {
+    background-color: #edf1ff;
+    border: none;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.dynamic-card-calls button:hover {
+    transform: scale(1.1);
+}
+
+/* Card footer section (buttons at the bottom) */
+.dynamic-card-footer {
+    margin-top: 20px;
+    height: 20%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px;
+    border-top: 1px solid #f0f0f0;
+}
+
+/* Individual footer button styling */
+.dynamic-card-footer button {
+    background-color: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.dynamic-card-footer button:hover {
+    color: #3454D1;
+}
+
