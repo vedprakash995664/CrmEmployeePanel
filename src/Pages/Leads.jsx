@@ -11,13 +11,11 @@ import { fetchLeads } from '../Features/LeadSlice';
 
 function Leads() {
   const [isModalOpen, setIsModalOpen] = useState(false);  
-<<<<<<< HEAD
-=======
   const [searchQuery, setSearchQuery] = useState('');
   const [note, setNote] = useState('');
   const [isNoteVisible, setIsNoteVisible] = useState(false); 
   const [stickyNote, setStickyNote] = useState('');
->>>>>>> 0d7293807b95022a9a847baf41a3fbf99e4f1c1d
+
   const [title, setTitle] = useState(''); 
   const [isEditMode, setEditMode] = useState(false);
   const [buttonTitle, setButtonTitle] = useState('');
@@ -37,7 +35,7 @@ function Leads() {
   }, [navigate]);
 
 
-<<<<<<< HEAD
+
     // Fetch lead data on component mount
     useEffect(() => {
       dispatch(fetchLeads()); 
@@ -49,7 +47,7 @@ function Leads() {
     setButtonTitle(isEdit ? "Update Lead" : "Add Lead");
     setIsModalOpen(true);
   };
-=======
+
   const [dropdownActive, setDropdownActive] = useState(false); 
     const toggleDropdown = () => {
       setDropdownActive(!dropdownActive);
@@ -63,14 +61,8 @@ function Leads() {
     setIsScheduled(event.target.checked); // Update the state based on switch value
   };
 
-  const openModal = (isEdit) => {
-    setEditMode(isEdit);
-    setTitle(isEdit ? "Update Leads" : "Add New Lead"); 
-    setButtonTitle(isEdit?"Update Leads" : "Add Lead")
-    setIsModalOpen(true);
-    
-  }
->>>>>>> 0d7293807b95022a9a847baf41a3fbf99e4f1c1d
+
+
 
   const closeModal = () => {
     setIsModalOpen(false);
