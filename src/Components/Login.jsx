@@ -6,12 +6,13 @@ import "./CSS/Login.css";
 import axios from "axios";
 
 const Login = () => {
-  const APi_Url=import.meta.env.VITE_API_URL
+  const APi_Url = import.meta.env.VITE_API_URL;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [focusedField, setFocusedField] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -22,23 +23,27 @@ const Login = () => {
       toast.error("All fields are required."); // Toast for error
     } else {
       try {
+        setLoading(true); // Show loader while the request is being processed
+
         // Call your API endpoint using axios
         const response = await axios.post(`${APi_Url}/digicoder/crm/api/v1/employee/login`, {
           username: email,
           password: password
         });
+
         if (response.status === 200) {
           setError("");
           toast.success("Logged in successfully!"); 
           const token = 'dvhdscvydsyjucbvdsjbvju';;
-          const employeeId=response.data.employee._id;
-          const addedBy=response.data.employee.addedBy;
+          const employeeId = response.data.employee._id;
+          const addedBy = response.data.employee.addedBy;
           console.log(response.data.employee);
           console.log(addedBy);
-          
+
           sessionStorage.setItem("Token", token);
-          sessionStorage.setItem("employeeId",employeeId)
-          sessionStorage.setItem("addedBy",addedBy)
+          sessionStorage.setItem("employeeId", employeeId);
+          sessionStorage.setItem("addedBy", addedBy);
+          
           setTimeout(() => {
             setEmail("");
             setPassword("");
@@ -55,6 +60,8 @@ const Login = () => {
           setError("An error occurred while processing your request.");
           toast.error("An error occurred while processing your request.");
         }
+      } finally {
+        setLoading(false); // Hide loader after request is completed
       }
     }
   };
@@ -125,7 +132,19 @@ const Login = () => {
           </div>
           <br />
           {error && <div className="error-message">{error}</div>}
-          <button type="submit" className="submit-btn">Login</button>
+
+          {/* Login button with conditional rendering for the loader */}
+          <button 
+            type="submit" 
+            className="submit-btn" 
+            disabled={loading} // Disable button while loading
+          >
+            {loading ? (
+              <div className="spinner"></div> // Show loader inside the button
+            ) : (
+              "Login"
+            )}
+          </button>
         </form>
       </div>
 
