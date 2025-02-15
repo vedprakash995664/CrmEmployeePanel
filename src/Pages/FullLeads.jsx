@@ -150,9 +150,6 @@ const [sourcesOptions, setSourcesOptions] = useState([])
   };
 
   const handleSave = async () => {
-    console.log("Saving data", FormApiData);
-    console.log(viewdata._id);
-
     try {
       const response = await axios.put(
         `${APi_Url}/digicoder/crm/api/v1/lead/update/${viewdata._id}`,
@@ -170,7 +167,6 @@ const [sourcesOptions, setSourcesOptions] = useState([])
           navigate('/leads')
         }, 500)
       } else {
-        console.log(response);
         toast.error("Failed to update the lead. Please try again.");
       }
 
@@ -452,7 +448,6 @@ useEffect(()=>{
     <div >
 
       <Dashboard active={activeData}>
-        {console.log(activeData)}
         <div className="content fullLead-outer">
           <>
             <div className="fullLead-outer">

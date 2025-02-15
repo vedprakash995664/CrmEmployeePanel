@@ -13,7 +13,7 @@ function Report() {
   return (
     <div>
       <Dashboard active={'report'}>
-        reprot
+        This Page is Under Constructions
       </Dashboard>
     </div>
   )

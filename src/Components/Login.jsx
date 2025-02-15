@@ -37,9 +37,8 @@ const Login = () => {
           const token = 'dvhdscvydsyjucbvdsjbvju';;
           const employeeId = response.data.employee._id;
           const addedBy = response.data.employee.addedBy;
-          console.log(response.data.employee);
-          console.log(addedBy);
-
+        
+          sessionStorage.setItem("Emp",response.data.employee.empName)
           sessionStorage.setItem("Token", token);
           sessionStorage.setItem("employeeId", employeeId);
           sessionStorage.setItem("addedBy", addedBy);

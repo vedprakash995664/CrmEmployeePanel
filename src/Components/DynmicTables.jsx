@@ -222,7 +222,7 @@ export default function DynamicTable({ lead, TableTitle }) {
                                             borderRadius: '50%',
                                         }}
                                     >
-                                        <a href={`https://wa.me/${rowData?.phone}`} target="_blank" rel="noopener noreferrer">
+                                        <a href={`https://wa.me/${91+rowData?.phone}`} target="_blank" rel="noopener noreferrer">
                                             <button
                                                 style={{
                                                     color: 'green',

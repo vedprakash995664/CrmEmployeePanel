@@ -8,7 +8,8 @@ const Dashboard = ({ children, active }) => {
   const [sidebarActive, setSidebarActive] = useState(false);
   const [dropdownActive, setDropdownActive] = useState(false);
   const [isShow, setIsShow] = useState(false);  
-  const user = "Ved Prakash"; 
+  const user = sessionStorage.getItem("Emp") 
+  
   const navigate = useNavigate();
   
   const toggleSidebar = () => {
@@ -66,7 +67,7 @@ const Dashboard = ({ children, active }) => {
   return (
     <div className="dashboard-container">
       <div className={`sidebar ${sidebarActive ? "active" : ""}`}>
-        <div className="sidebar-logo">CRM DASH</div>
+        <div className="sidebar-logo"><img src="/Images/logo.png" style={{width:"200px"}} alt="" /></div>
         <div className="navigation">
           <ul className="sidebar-nav-links">
             <Link className="navigation-link" to="/Main">
