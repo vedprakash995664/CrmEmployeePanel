@@ -28,8 +28,8 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
     useEffect(() => {
         dispatch(fetchPriority());
         dispatch(fetchLeadStatus());
-    }, [dispatch]);
-
+    }, [dispatch]);   
+    const APi_Url=import.meta.env.VITE_API_URL
     useEffect(() => {
         if (priorityData && Array.isArray(priorityData)) {
             setPriorityOptions(
@@ -90,7 +90,7 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
             console.log('Sending Data:', data);
 
             // Axios POST request
-            const response = await axios.post(`http://localhost:3000/digicoder/crm/api/v1/followup/add/${leadData._id}`, data, {
+            const response = await axios.post(`${APi_Url}/digicoder/crm/api/v1/followup/add/${leadData._id}`, data, {
                 headers: { 'Content-Type': 'application/json' },
             });
 
