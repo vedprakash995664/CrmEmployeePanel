@@ -7,46 +7,51 @@ import { Toast } from 'primereact/toast';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLeadStatus, fetchPriority } from '../Features/LeadSlice';
-function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {   
+import { Spinner } from 'react-bootstrap'; // Import Spinner
+
+function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
     const [message, setMessage] = useState('');
     const toast = useRef(null); // Reference for the toast notification
     const [isScheduled, setIsScheduled] = useState(false);
-    const [reminder, setReminderDate] = useState('');  
-    const [priority, setPriority] = useState(''); 
-    const [status, setStatus] = useState('');  
+    const [reminder, setReminderDate] = useState('');
+    const [priority, setPriority] = useState('');
+    const [status, setStatus] = useState('');
+    const [isLoading, setIsLoading] = useState(false); // Loader state for Save button
 
     const dispatch = useDispatch();
-    const priorityData = useSelector((state) => state.leads.Priority); 
-    const leadStatus = useSelector((state) => state.leads.LeadStatus); 
-    
+    const priorityData = useSelector((state) => state.leads.Priority);
+    const leadStatus = useSelector((state) => state.leads.LeadStatus);
+
     const [priorityOptions, setPriorityOptions] = useState([]);
     const [statusOptions, setStatusOptions] = useState([]);
 
-  useEffect(() => {
-    dispatch(fetchPriority());
-    dispatch(fetchLeadStatus())
-  }, [dispatch]);
-  useEffect(() => {
-      if (priorityData && Array.isArray(priorityData)) {
-        setPriorityOptions(
-          priorityData.map((priority) => ({
-            label: priority.priorityText,
-            value: priority.priorityText
-          }))
-        );
-      }
+    useEffect(() => {
+        dispatch(fetchPriority());
+        dispatch(fetchLeadStatus());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (priorityData && Array.isArray(priorityData)) {
+            setPriorityOptions(
+                priorityData.map((priority) => ({
+                    label: priority.priorityText,
+                    value: priority.priorityText
+                }))
+            );
+        }
     }, [priorityData]);
-  useEffect(() => {
-      if (leadStatus && Array.isArray(leadStatus)) {
-        setStatusOptions(
-            leadStatus.map((status) => ({
-            label: status.leadStatusText,
-            value: status.leadStatusText
-          }))
-        );
-      }
+
+    useEffect(() => {
+        if (leadStatus && Array.isArray(leadStatus)) {
+            setStatusOptions(
+                leadStatus.map((status) => ({
+                    label: status.leadStatusText,
+                    value: status.leadStatusText
+                }))
+            );
+        }
     }, [leadStatus]);
-  
+
     const handleNoteChange = (e) => {
         setMessage(e.target.value);
     };
@@ -64,6 +69,7 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
     };
 
     const saveStickyNote = async () => {
+        setIsLoading(true); // Start the loader
         try {
             const employeeId = sessionStorage.getItem('employeeId');
 
@@ -104,11 +110,14 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
             oncloseNote();
         } catch (error) {
             console.error('Error saving note:', error);
-            
+
             // Show error toast notification
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to save note', life: 3000 });
+        } finally {
+            setIsLoading(false); // Stop the loader
         }
     };
+
     const cancelStickyNote = () => {
         setMessage('');
         setPriority('');
@@ -127,92 +136,101 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
 
     return (
         <>
-        <Modal
-            show={isOpenNote}
-            onHide={oncloseNote}
-            size="lg"
-            centered
-        >
-            <Modal.Header closeButton>
-                <Modal.Title>Follow Up Notes</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <div className="modal-body-content">
-                    {/* Sticky Note Textarea */}
-                    <div className="sticky-note-container">
-                        <textarea
-                            value={message}
-                            onChange={handleNoteChange}
-                            placeholder="Add a note..."
-                            className="sticky-note-textarea"
-                        />
-                    </div>
-
-                    {/* Form Row for Priority and Sources */}
-                    <div className="form-row-notes">
-                        <div className="form-group">
-                            <label className="form-label">Priority:</label>
-                            <select
-                                name="priority"
-                                className="sticky-note-select"
-                                value={priority}
-                                onChange={handlePriorityChange}
-                            >
-                                <option value="">Select</option>
-                                {priorityOptions.map((option, index) => (
-                                    <option key={index} value={option.value}>
-                                        {option.value}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Status:</label>
-                            <select
-                                name="status"
-                                className="sticky-note-select"
-                                value={status}
-                                onChange={handleStatusChange}
-                            >
-                                <option value="">Select</option>
-                                {statusOptions.map((option, index) => (
-                                    <option key={index} value={option.value}>
-                                        {option.value}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Switch for Set Reminder */}
-                    <div className="form-group reminder-switch">
-                        <Switch {...label} onChange={handleSwitchChange} />
-                        <label>Set Reminder</label>
-                        {isScheduled && (
-                            <input
-                                type="date"
-                                className="date-input"
-                                value={reminder}
-                                onChange={handleReminderDateChange}
+            <Modal
+                show={isOpenNote}
+                onHide={oncloseNote}
+                size="lg"
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Follow Up Notes</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="modal-body-content">
+                        {/* Sticky Note Textarea */}
+                        <div className="sticky-note-container">
+                            <textarea
+                                value={message}
+                                onChange={handleNoteChange}
+                                placeholder="Add a note..."
+                                className="sticky-note-textarea"
                             />
-                        )}
-                    </div>
+                        </div>
 
-                    {/* Action Buttons */}
-                    <div className="sticky-note-actions">
-                        <Button variant="secondary" onClick={cancelStickyNote} className="cancel-btn">
-                            Cancel
-                        </Button>
-                        <Button variant="primary" onClick={saveStickyNote} className="save-btn">
-                            Save
-                        </Button>
+                        {/* Form Row for Priority and Sources */}
+                        <div className="form-row-notes">
+                            <div className="form-group">
+                                <label className="form-label">Priority:</label>
+                                <select
+                                    name="priority"
+                                    className="sticky-note-select"
+                                    value={priority}
+                                    onChange={handlePriorityChange}
+                                >
+                                    <option value="">Select</option>
+                                    {priorityOptions.map((option, index) => (
+                                        <option key={index} value={option.value}>
+                                            {option.value}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Status:</label>
+                                <select
+                                    name="status"
+                                    className="sticky-note-select"
+                                    value={status}
+                                    onChange={handleStatusChange}
+                                >
+                                    <option value="">Select</option>
+                                    {statusOptions.map((option, index) => (
+                                        <option key={index} value={option.value}>
+                                            {option.value}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Switch for Set Reminder */}
+                        <div className="form-group reminder-switch">
+                            <Switch {...label} onChange={handleSwitchChange} />
+                            <label>Set Reminder</label>
+                            {isScheduled && (
+                                <input
+                                    type="date"
+                                    className="date-input"
+                                    value={reminder}
+                                    onChange={handleReminderDateChange}
+                                />
+                            )}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="sticky-note-actions">
+                            <Button variant="secondary" onClick={cancelStickyNote} className="cancel-btn">
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="primary"
+                                onClick={saveStickyNote}
+                                className="save-btn"
+                                disabled={isLoading} // Disable Save button while loading
+                            >
+                                {isLoading ? (
+                                    <Spinner animation="border" size="sm" />  // Add spinner here
+                                ) : (
+                                    'Save'
+                                )}
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            </Modal.Body>
-        </Modal>
-        <Toast ref={toast} /> 
-        </> 
+                </Modal.Body>
+            </Modal>
+            <Toast ref={toast} />
+        </>
     );
 }
 

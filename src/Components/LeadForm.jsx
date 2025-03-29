@@ -9,25 +9,27 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPriority, fetchSources } from '../Features/LeadSlice';
+import { ProgressSpinner } from 'primereact/progressspinner'; // Importing the ProgressSpinner for loader
 
 const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
-  const APi_Url=import.meta.env.VITE_API_URL
-  const employeeId=sessionStorage.getItem('employeeId')
+  const APi_Url = import.meta.env.VITE_API_URL;
+  const employeeId = sessionStorage.getItem('employeeId');
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     priority: '',
     sources: '',
-    userType:"Employee",
-    leadAssignedTo:employeeId
+    userType: "Employee",
+    leadAssignedTo: employeeId
   });
 
   const dispatch = useDispatch();
-  const priorityData = useSelector((state) => state.leads.Priority); 
+  const priorityData = useSelector((state) => state.leads.Priority);
   const sourcesData = useSelector((state) => state.leads.leadSources);
 
   const [priorityOptions, setPriorityOptions] = useState([]);
   const [sourcesOptions, setSourcesOptions] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false); // State for loading
 
   useEffect(() => {
     dispatch(fetchPriority());
@@ -63,15 +65,15 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
         phone: leadData.phone || '',
         priority: leadData.priority || '',
         sources: leadData.source || '',
-        userType:"Employee",
-        leadAssignedTo:employeeId
+        userType: "Employee",
+        leadAssignedTo: employeeId
       });
     }
   }, [leadData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
@@ -86,6 +88,7 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
     }
 
     try {
+      setIsSubmitting(true); // Start loading
       const addedBy = sessionStorage.getItem("addedBy");
       console.log(formData);
       const response = await axios.post(`${APi_Url}/digicoder/crm/api/v1/lead/add/${addedBy}`, formData, {
@@ -103,6 +106,8 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
     } catch (error) {
       console.error('Error adding lead:', error);
       toast.error('Failed to add lead');
+    } finally {
+      setIsSubmitting(false); // Stop loading
     }
   };
 
@@ -112,11 +117,18 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
       visible={isOpen}
       onHide={onClose}
       className='leadFormOuter'
-      
       footer={
         <>
           <Button label="Close" icon="pi pi-times" onClick={onClose} className="p-button-text p-button-rounded" />
-          <Button label={buttonTitle} icon="pi pi-check" onClick={handleSubmit} className="p-button-rounded p-button-success" />
+          <Button 
+            label={isSubmitting ? "Adding..." : buttonTitle} 
+            icon={isSubmitting ? "" : "pi pi-check"} 
+            onClick={handleSubmit} 
+            className="p-button-rounded p-button-success"
+            disabled={isSubmitting} // Disable the button during submission
+            >
+            {isSubmitting && <ProgressSpinner style={{ width: '20px', height: '20px' }} />}
+          </Button>
         </>
       }
     >

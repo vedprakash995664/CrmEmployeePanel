@@ -112,6 +112,13 @@ const Dashboard = ({ children, active }) => {
                 </button>
               </li>
             </Link>
+            <Link className="navigation-link" to="/calender">
+              <li>
+                <button className={`sidebar-link ${active === 'calender' && 'active'}`}>
+                <i class="ri-calendar-schedule-fill"></i> &nbsp; Calender
+                </button>
+              </li>
+            </Link>
 
             <Link className="navigation-link" to="/report">
               <li>

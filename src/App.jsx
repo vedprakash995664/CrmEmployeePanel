@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Login from './Components/Login'
 import Dashboard from './Components/Dashboard'
 import 'react-toastify/dist/ReactToastify.css';
+
 import Leads from './Pages/Leads'
 import MissedLeads from './Pages/MissedLeads'
 import Reminders from './Pages/Reminders'
@@ -24,7 +25,7 @@ import DynamicCard from './Components/DynamicCard';
 import ClosedLead from './Pages/ClosedLead';
 import NegativeLead from './Pages/NegativeLead';
 
-
+import  Calander from './Pages/Calander'
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route  path='/DynamicTable' element={<DynamicTable/>}/>
           <Route  path='/profile' element={<Profile/>}/>
           <Route  path='/card' element={<DynamicCard/>}/>
+          <Route  path='/calender' element={<Calander/>}/>
           {/* -------------------------------------------- */}
           <Route  path='/priority' element={<Priority/>}/>
           <Route  path='/source' element={<Source/>}/>
@@ -55,6 +57,7 @@ function App() {
           <Route  path='/missedLeads/fullLeads' element={<FullLeads/>}/>
           <Route  path='/closed/fullLeads' element={<FullLeads/>}/>
           <Route  path='/negative/fullLeads' element={<FullLeads/>}/>
+          <Route  path='/calender/fullLeads' element={<Calander/>}/>
           <Route  path='/notes' element={<FollowUpNotes/>}/>
         </Routes>
       </Router>

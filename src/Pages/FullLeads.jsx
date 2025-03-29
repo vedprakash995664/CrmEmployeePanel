@@ -18,20 +18,21 @@ import axios from "axios";
 import { fetchPriority, fetchSources, fetchTags } from "../Features/LeadSlice";
 import { useDispatch, useSelector } from "react-redux";
 function FullLeads() {
-  const APi_Url=import.meta.env.VITE_API_URL
+  const APi_Url = import.meta.env.VITE_API_URL
   const [noteOpen, setNoteOpen] = useState(false);
   const [actionBtn, setActionBtn] = useState(true)
   const [unCloseActionBtn, setUnCloseActionBtn] = useState(false)
   const [unNegativeActionBtn, setUnNegativeActionBtn] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_BOTTOM = 10;
 
   const dispatch = useDispatch();
-const priorityData = useSelector((state) => state.leads.Priority);
-const sourcesData = useSelector((state) => state.leads.leadSources);
-const tagData = useSelector((state) => state.leads.tag);
-const [priorityOptions, setPriorityOptions] = useState([]);
-const [sourcesOptions, setSourcesOptions] = useState([])
+  const priorityData = useSelector((state) => state.leads.Priority);
+  const sourcesData = useSelector((state) => state.leads.leadSources);
+  const tagData = useSelector((state) => state.leads.tag);
+  const [priorityOptions, setPriorityOptions] = useState([]);
+  const [sourcesOptions, setSourcesOptions] = useState([])
   const MenuProps = {
     PaperProps: {
       style: {
@@ -149,7 +150,10 @@ const [sourcesOptions, setSourcesOptions] = useState([])
     setIsDisabled(false);
   };
 
+
   const handleSave = async () => {
+    setIsLoading(true);  // Start loader (set isLoading to true)
+
     try {
       const response = await axios.put(
         `${APi_Url}/digicoder/crm/api/v1/lead/update/${viewdata._id}`,
@@ -164,8 +168,8 @@ const [sourcesOptions, setSourcesOptions] = useState([])
       if (response.status === 201) {
         toast.success("Updated successfully!");
         setTimeout(() => {
-          navigate('/leads')
-        }, 500)
+          navigate('/leads');
+        }, 500);
       } else {
         toast.error("Failed to update the lead. Please try again.");
       }
@@ -175,6 +179,8 @@ const [sourcesOptions, setSourcesOptions] = useState([])
     } catch (error) {
       console.error("Error updating lead:", error);
       toast.error("Error occurred while updating. Please try again.");
+    } finally {
+      setIsLoading(false);  // Stop loader (set isLoading to false)
     }
   };
   const handleStickyNote = (viewdata) => {
@@ -190,7 +196,7 @@ const [sourcesOptions, setSourcesOptions] = useState([])
       setActionBtn(false);
       setUnCloseActionBtn(true);
     }
-    else if(TableTitle=='Negative Lead'){
+    else if (TableTitle == 'Negative Lead') {
       setActionBtn(false);
       setUnCloseActionBtn(false)
       setUnNegativeActionBtn(true)
@@ -210,27 +216,27 @@ const [sourcesOptions, setSourcesOptions] = useState([])
     fetchFollowUps();
   }, [viewdata._id]);
 
-const [activeData,setActiveData]=useState()
-useEffect(()=>{
-  if (TableTitle == 'Leads') {
-    setActiveData("dashboard")
-  }
-  else if (TableTitle == 'Total Leads') {
-    setActiveData("lead")
-  }
-  else if (TableTitle == 'Today Reminders') {
-    setActiveData("reminder")
-  }
-  else if (TableTitle == 'Missed Leads') {
-    setActiveData("missedLead")
-  }
-  else if (TableTitle == 'Closed Lead') {
-    setActiveData("closedLead")
-  }
-  else if (TableTitle == 'Negative Lead') {
-    setActiveData("negative")
-  }
-})
+  const [activeData, setActiveData] = useState()
+  useEffect(() => {
+    if (TableTitle == 'Leads') {
+      setActiveData("dashboard")
+    }
+    else if (TableTitle == 'Total Leads') {
+      setActiveData("lead")
+    }
+    else if (TableTitle == 'Today Reminders') {
+      setActiveData("reminder")
+    }
+    else if (TableTitle == 'Missed Leads') {
+      setActiveData("missedLead")
+    }
+    else if (TableTitle == 'Closed Lead') {
+      setActiveData("closedLead")
+    }
+    else if (TableTitle == 'Negative Lead') {
+      setActiveData("negative")
+    }
+  })
   const handleBack = () => {
     if (TableTitle == 'Leads') {
       navigate('/Main');
@@ -349,7 +355,7 @@ useEffect(()=>{
   };
 
 
-  
+
   const handleUnCloseForAlways = async () => {
     const result = await Swal.fire({
       title: 'Are you sure?',
@@ -530,33 +536,33 @@ useEffect(()=>{
                       />
                     </div>
                     <div>
-                    <div className="label">Priority</div>
-                    <Dropdown
-                      id="priority"
-                      name="priority"
-                      value={formData.Priority}
-                      options={priorityOptions}
-                      onChange={(e) => handleChange({ target: { name: 'Priority', value: e.value } })}
-                      optionLabel="label"
-                      disabled={isDisabled}
-                      placeholder="Select priority"
-                      className="p-dropdown"
-                    />
-                  </div>
-                  <div>
-                    <div className="label">Source</div>
-                    <Dropdown
-                      id="sources"
-                      name="sources"
-                      value={formData.Source}
-                      options={sourcesOptions}
-                      onChange={(e) => handleChange({ target: { name: 'Source', value: e.value } })}
-                      optionLabel="label"
-                      disabled={isDisabled}
-                      placeholder="Select source"
-                      className="p-dropdown"
-                    />
-                  </div>
+                      <div className="label">Priority</div>
+                      <Dropdown
+                        id="priority"
+                        name="priority"
+                        value={formData.Priority}
+                        options={priorityOptions}
+                        onChange={(e) => handleChange({ target: { name: 'Priority', value: e.value } })}
+                        optionLabel="label"
+                        disabled={isDisabled}
+                        placeholder="Select priority"
+                        className="p-dropdown"
+                      />
+                    </div>
+                    <div>
+                      <div className="label">Source</div>
+                      <Dropdown
+                        id="sources"
+                        name="sources"
+                        value={formData.Source}
+                        options={sourcesOptions}
+                        onChange={(e) => handleChange({ target: { name: 'Source', value: e.value } })}
+                        optionLabel="label"
+                        disabled={isDisabled}
+                        placeholder="Select source"
+                        className="p-dropdown"
+                      />
+                    </div>
                     <div>
                       <div className="label">City</div>
                       <input
@@ -613,28 +619,28 @@ useEffect(()=>{
                       />
                     </div>
                     <div>
-                    <FormControl sx={{ width: "250px", m: 1 }}>
-                      <InputLabel id="tags-label">Tags</InputLabel>
-                      <Select
-                        labelId="tags-label"
-                        id="tags-select"
-                        multiple
-                        value={selectedTags}
-                        onChange={handleTagChange}
-                        input={<OutlinedInput label="Tags" />}
-                        renderValue={(selected) => selected.join(', ')}
-                        MenuProps={MenuProps}
-                        disabled={isDisabled}
-                      >
-                        {tagData.map((item) => (
-                          <MenuItem key={item.tagName} value={item.tagName}>
-                            <Checkbox checked={selectedTags.indexOf(item.tagName) > -1} />
-                            <ListItemText primary={item.tagName} />
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </div>
+                      <FormControl sx={{ width: "250px", m: 1 }}>
+                        <InputLabel id="tags-label">Tags</InputLabel>
+                        <Select
+                          labelId="tags-label"
+                          id="tags-select"
+                          multiple
+                          value={selectedTags}
+                          onChange={handleTagChange}
+                          input={<OutlinedInput label="Tags" />}
+                          renderValue={(selected) => selected.join(', ')}
+                          MenuProps={MenuProps}
+                          disabled={isDisabled}
+                        >
+                          {tagData.map((item) => (
+                            <MenuItem key={item.tagName} value={item.tagName}>
+                              <Checkbox checked={selectedTags.indexOf(item.tagName) > -1} />
+                              <ListItemText primary={item.tagName} />
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </div>
 
                     <div>
                       <div className="label">Lead Status</div>
@@ -650,7 +656,13 @@ useEffect(()=>{
                   </div>
                   <div className="view-edit-btn">
                     <button onClick={isEditing ? handleSave : handleUpdate}>
-                      {isEditing ? "Save" : "Update"}
+                      {isLoading ? (
+                        <span>Loading...</span>  // Show loading text or you could use a spinner here
+                      ) : isEditing ? (
+                        "Save"
+                      ) : (
+                        "Update"
+                      )}
                     </button>
                   </div>
                 </div>
@@ -667,11 +679,11 @@ useEffect(()=>{
 
                 <div className="follow-ups">
                   {/* Hard-coded Follow-ups */}
-                  {followUps.map((followUp,index) => (
+                  {followUps.map((followUp, index) => (
                     <div key={followUp.id} className="follow-outer">
                       <div className="follow-body">
                         <div className="follow-body-header">
-                          <div className="followup-srNo">{index+1}</div>
+                          <div className="followup-srNo">{index + 1}</div>
                           <div >
                             <span className="cratedBy">Created Date-</span> <span className="cratedBy">{followUp.createdAt.split("T")[0]}</span>
                             <div style={{ marginTop: "5px" }}><span className="cratedBy">Created By-</span> <span className="cratedBy">{followUp.followedBy.empName}</span></div>
@@ -696,13 +708,13 @@ useEffect(()=>{
                 )}
                 {unCloseActionBtn && (
                   <div className="lead-action-btn">
-                  <button className="negative-btn" onClick={() => handleUnCloseForAlways()}>Unclose Lead</button>
-                </div>
+                    <button className="negative-btn" onClick={() => handleUnCloseForAlways()}>Unclose Lead</button>
+                  </div>
                 )}
                 {unNegativeActionBtn && (
                   <div className="lead-action-btn">
-                  <button className="close-btn" onClick={() => handleUnNegativeForAlways()}>Move to new Lead</button>
-                </div>
+                    <button className="close-btn" onClick={() => handleUnNegativeForAlways()}>Move to new Lead</button>
+                  </div>
                 )}
               </div>
             </div>
