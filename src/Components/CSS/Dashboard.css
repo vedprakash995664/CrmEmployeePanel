@@ -29,11 +29,20 @@ body {
   background-color: #EAEBEF;
   color: red;
 }
+.x{
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  display: none;
+}
 .sidebar-logo {
   font-size: 28px;
   font-family: "Poppins", serif;
   font-weight: bolder;
   width: 100%;  
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-bottom: 1px solid rgb(198, 198, 198);
   text-align: center;
   padding: 23px 0px;
@@ -300,7 +309,12 @@ body {
 }
 
 /* Media Queries */
-
+@media(max-width:1008px){
+  .sidebar-close-btn {
+    display: block;
+    right: 20px;
+  }
+}
 /* Tablets and below */
 @media (max-width: 1024px) {
   .dashboard-container {
@@ -397,16 +411,14 @@ body {
     overflow-y: auto;
   }
 
-  .sidebar-close-btn {
-    display: block;
-    right: 20px;
-  }
+ 
 }
 
 @media(max-width:780px){
   .sidebar{
     padding: 0px;
   }
+
   .navigation{
     padding: 0px;
   }

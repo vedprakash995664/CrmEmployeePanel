@@ -181,16 +181,21 @@ function FullLeads() {
       toast.error("Error occurred while updating. Please try again.");
     } finally {
       setIsLoading(false);  // Stop loader (set isLoading to false)
+    }   
+  };
+ 
+  const [followUps, setFollowUps] = useState([]);
+  const fetchFollowUps = async () => {
+    try {
+      const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/followup/getall/${viewdata._id}`);
+      if (response.status === 200) {
+        setFollowUps(Array.isArray(response.data.followups) ? response.data.followups : []);
+      }
+    } catch (error) {
+      console.error("Error fetching follow-up data:", error);
+      toast.error("Error fetching follow-up data. Please try again.");
     }
   };
-  const handleStickyNote = (viewdata) => {
-    setNoteOpen(true);
-  }
-  const closeNote = () => {
-    setNoteOpen(false)
-    window.location.reload()
-  }
-  const [followUps, setFollowUps] = useState([]);
   useEffect(() => {
     if (TableTitle === 'Closed Lead') {
       setActionBtn(false);
@@ -201,21 +206,15 @@ function FullLeads() {
       setUnCloseActionBtn(false)
       setUnNegativeActionBtn(true)
     }
-    const fetchFollowUps = async () => {
-      try {
-        const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/followup/getall/${viewdata._id}`);
-        if (response.status === 200) {
-          setFollowUps(Array.isArray(response.data.followups) ? response.data.followups : []);
-        }
-      } catch (error) {
-        console.error("Error fetching follow-up data:", error);
-        toast.error("Error fetching follow-up data. Please try again.");
-      }
-    };
-
     fetchFollowUps();
   }, [viewdata._id]);
-
+  const handleStickyNote = (viewdata) => {
+    setNoteOpen(true);
+  }
+  const closeNote = () => {
+    setNoteOpen(false)
+    fetchFollowUps();
+  }
   const [activeData, setActiveData] = useState()
   useEffect(() => {
     if (TableTitle == 'Leads') {
