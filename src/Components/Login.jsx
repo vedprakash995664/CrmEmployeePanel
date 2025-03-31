@@ -31,14 +31,14 @@ const Login = () => {
           password: password
         });
 
-        if (response.status === 200) {
+        if (response.status === 200) { 
           setError("");
           toast.success("Logged in successfully!"); 
           const token = 'dvhdscvydsyjucbvdsjbvju';;
           const employeeId = response.data.employee._id;
           const addedBy = response.data.employee.addedBy;
-        
-          sessionStorage.setItem("Emp",response.data.employee.empName)
+        const name =response.data.employee
+          sessionStorage.setItem("Emp",JSON.stringify(name))
           sessionStorage.setItem("Token", token);
           sessionStorage.setItem("employeeId", employeeId);
           sessionStorage.setItem("addedBy", addedBy);

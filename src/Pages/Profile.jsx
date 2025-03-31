@@ -6,10 +6,12 @@ import { useNavigate } from 'react-router-dom';
 function Profile() {
   const [isEditing, setIsEditing] = useState(false); // Toggle for editing mode
   const navigate=useNavigate()
+  const userString = sessionStorage.getItem('Emp');
+  const name = userString ? JSON.parse(userString) : null;
   const [user, setUser] = useState({
-    name: "John Doe",
-    email: "johndoe@example.com",
-    phone: "123-456-7890",
+    name: name.empName || "",
+    email: name.empEmail || "",
+    phone: name.empPhoneNumber || "",
     image: "/Images/ved.jpg",
   });
 
@@ -86,9 +88,9 @@ function Profile() {
             </div>
           </div>
           <div className="button-container">
-            <button onClick={handleEditSaveToggle}>
+            {/* <button onClick={handleEditSaveToggle}>
               {isEditing ? "Save" : "Update"}
-            </button>
+            </button> */}
           </div>
         </div>
         <br />

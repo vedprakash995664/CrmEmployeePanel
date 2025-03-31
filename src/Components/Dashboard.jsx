@@ -8,7 +8,8 @@ const Dashboard = ({ children, active }) => {
   const [sidebarActive, setSidebarActive] = useState(false);
   const [dropdownActive, setDropdownActive] = useState(false);
   const [isShow, setIsShow] = useState(false);  
-  const user = sessionStorage.getItem("Emp") 
+  const userString = sessionStorage.getItem('Emp');
+  const name = userString ? JSON.parse(userString) : null;
   
   const navigate = useNavigate();
   
@@ -45,6 +46,7 @@ const Dashboard = ({ children, active }) => {
           sessionStorage.removeItem("employeeId");
           sessionStorage.removeItem("addedBy");
           localStorage.removeItem("Employee");
+          sessionStorage.removeItem("Emp");
           navigate('/');
         });
       } else {
@@ -141,7 +143,7 @@ const Dashboard = ({ children, active }) => {
 
       <div className="main-content">
         <header className="header">
-          <h1 className="header-title">Welcome Back, {user}</h1>
+          <h1 className="header-title">Welcome Back, {name.empName}</h1>
           <button className="hamburger" onClick={toggleSidebar}>
             {sidebarActive ? "×" : "☰"}
           </button>
