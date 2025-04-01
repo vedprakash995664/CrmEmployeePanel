@@ -69,7 +69,7 @@ const Dashboard = ({ children, active }) => {
   return (
     <div className="dashboard-container">
       <div className={`sidebar ${sidebarActive ? "active" : ""}`}>
-        <div className="sidebar-logo"><img src="/Images/CRMLOGO.gif" style={{width:"200px"}} alt="" /></div>
+        <div className="sidebar-logo"><img src="Images/cr.gif" style={{width:"200px"}} alt="" /></div>
         <div className="navigation">
           <ul className="sidebar-nav-links">
             <Link className="navigation-link" to="/Main">
