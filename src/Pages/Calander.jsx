@@ -21,8 +21,9 @@ const LeadCalendar = () => {
   useEffect(() => {
     const fetchFollowups = async () => {
       try {
+        const addedBy = sessionStorage.getItem('employeeId');
         const response = await fetch(
-          'https://crmbackendfile.onrender.com/digicoder/crm/api/v1/followup/getnext/67e4fbd5ab5347847e6c0c22'
+          `https://crmbackendfile.onrender.com/digicoder/crm/api/v1/followup/getnext/${addedBy}`
         );
 
         if (!response.ok) {
