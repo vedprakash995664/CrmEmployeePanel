@@ -7,13 +7,16 @@ import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import { MultiSelect } from 'primereact/multiselect';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPriority, fetchSources } from '../Features/LeadSlice';
-import { ProgressSpinner } from 'primereact/progressspinner'; // Importing the ProgressSpinner for loader
+import { fetchPriority, fetchSources,fetchTags } from '../Features/LeadSlice';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
   const APi_Url = import.meta.env.VITE_API_URL;
   const employeeId = sessionStorage.getItem('employeeId');
+  const [selectedTagValues, setSelectedTagValues] = useState([]);
+  const tagData = useSelector((state) => state.leads.tag);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -29,11 +32,13 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
 
   const [priorityOptions, setPriorityOptions] = useState([]);
   const [sourcesOptions, setSourcesOptions] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false); // State for loading
+  const [tagsOptions, setTagsOptions] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     dispatch(fetchPriority());
     dispatch(fetchSources());
+    dispatch(fetchTags());
   }, [dispatch]);
 
   useEffect(() => {
@@ -59,6 +64,17 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
   }, [sourcesData]);
 
   useEffect(() => {
+    if (tagData && Array.isArray(tagData)) {
+      setTagsOptions(
+        tagData.map((tag) => ({
+          label: tag.tagText || tag.tagName,
+          value: tag.tagName || tag.tagText
+        }))
+      );
+    }
+  }, [tagData]);
+
+  useEffect(() => {
     if (leadData) {
       setFormData({
         name: leadData.name || '',
@@ -68,6 +84,11 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
         userType: "Employee",
         leadAssignedTo: employeeId
       });
+      
+      // Set tags if available in leadData
+      if (leadData.tags && Array.isArray(leadData.tags)) {
+        setSelectedTagValues(leadData.tags);
+      }
     }
   }, [leadData]);
 
@@ -88,10 +109,16 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
     }
 
     try {
-      setIsSubmitting(true); // Start loading
+      setIsSubmitting(true);
       const addedBy = sessionStorage.getItem("addedBy");
-      console.log(formData);
-      const response = await axios.post(`${APi_Url}/digicoder/crm/api/v1/lead/add/${addedBy}`, formData, {
+      
+      // Include selected tags in form data
+      const dataToSubmit = {
+        ...formData,
+        tags: selectedTagValues
+      };
+      
+      const response = await axios.post(`${APi_Url}/digicoder/crm/api/v1/lead/add/${addedBy}`, dataToSubmit, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -107,7 +134,7 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
       console.error('Error adding lead:', error);
       toast.error('Failed to add lead');
     } finally {
-      setIsSubmitting(false); // Stop loading
+      setIsSubmitting(false);
     }
   };
 
@@ -125,7 +152,7 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
             icon={isSubmitting ? "" : "pi pi-check"} 
             onClick={handleSubmit} 
             className="p-button-rounded p-button-success"
-            disabled={isSubmitting} // Disable the button during submission
+            disabled={isSubmitting}
             >
             {isSubmitting && <ProgressSpinner style={{ width: '20px', height: '20px' }} />}
           </Button>
@@ -181,9 +208,25 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
               value={formData.sources}
               options={sourcesOptions}
               onChange={handleInputChange}
-              optionLabel="value"
+              optionLabel="label" 
+              optionValue="value"
               placeholder="Select source"
               className="p-dropdown p-component"
+            />
+          </div>
+          
+          <div className="p-field p-col-12 p-md-6">
+            <label htmlFor="tags">Tags:</label>
+            <MultiSelect
+              id="tags"
+              value={selectedTagValues}
+              options={tagsOptions}
+              onChange={(e) => setSelectedTagValues(e.value)}
+              optionLabel="label"
+              optionValue="value"
+              filter
+              placeholder="Select Tags"
+              className="p-multiselect p-component"
             />
           </div>
         </div>

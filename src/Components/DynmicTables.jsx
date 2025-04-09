@@ -169,7 +169,7 @@ export default function DynamicTable({ lead, TableTitle }) {
                 header={header}
                 emptyMessage="No Leads found."
                 onPage={onPageChange}
-                paginatorTemplate="PrevPageLink PageLinks NextPageLink"
+                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
                 removableSort
                 style={{ borderRadius: '10px' }}
             >

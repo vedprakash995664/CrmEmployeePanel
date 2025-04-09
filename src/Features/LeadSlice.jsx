@@ -45,26 +45,28 @@ export const { setLeads, setPriority,setLeadStatus,setEmployee ,setLeadSources,s
 // Thunk to fetch leads data
 export const fetchLeads = () => async (dispatch) => {
   try {
-    const APi_Url=import.meta.env.VITE_API_URL
+    const APi_Url = import.meta.env.VITE_API_URL;
     const addedBy = sessionStorage.getItem('addedBy');
     const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/lead/getall/${addedBy}`);
-    const totalLead=response.data.leads   
-    const employeeId=sessionStorage.getItem("employeeId")
-    const assignedLead=totalLead.filter((item)=>{
-      if(item.leadAssignedTo){
-        return item
+    const totalLead = response.data.leads;
+
+    const employeeId = sessionStorage.getItem("employeeId");
+
+    // Filter out leads where 'leadAssignedTo' is not null/undefined and contains the current employeeId
+    const assignedLead = totalLead.filter((item) => {
+      if (item.leadAssignedTo) {
+        // Check if employeeId exists within the leadAssignedTo array
+        return item.leadAssignedTo.some((assigned) => assigned._id === employeeId);
       }
-    })
-    const finalAssigned=assignedLead.filter((FinalItem)=>{
-      if(FinalItem.leadAssignedTo._id===employeeId){
-        return FinalItem;
-      }
-    })
-    dispatch(setLeads(finalAssigned));
+      return false;
+    });
+    // Dispatch filtered leads to the Redux store
+    dispatch(setLeads(assignedLead));
   } catch (error) {
     console.error('Error fetching leads:', error);
   }
 };
+
 
 
 // Thunk to fetch leads data
@@ -97,6 +99,8 @@ export const fetchLeadStatus = () => async (dispatch) => {
     const APi_Url=import.meta.env.VITE_API_URL
     const addedBy = sessionStorage.getItem('addedBy');
     const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/leadstatus/getall/${addedBy}`);
+    
+    
     dispatch(setLeadStatus(response.data.leadStatus));
     // console.log(response.data.leadStatus);
     
