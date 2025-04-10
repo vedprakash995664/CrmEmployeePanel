@@ -7,7 +7,7 @@ import DynamicCard from '../Components/DynamicCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllFollowUps, fetchLeads } from '../Features/LeadSlice';
 
-import { FaCalendarCheck, FaUserTimes, FaCheckCircle, FaThumbsDown } from 'react-icons/fa';
+import { FaCalendarCheck, FaUserTimes, FaBell, FaThumbsDown } from 'react-icons/fa';
 
 function MainDashboard() {
   const [tableTitle, setTableTitle] = useState('Today Reminders');
@@ -32,6 +32,9 @@ function MainDashboard() {
   const closedLeads = leads.filter((item) => item.closed && !item.deleted);
   const negativeLeads = leads.filter((item) => item.negative && !item.deleted);
 
+  // Calculate total leads (for all time)
+  const totalLeads = leads.filter((item) => !item.deleted); // Only include non-deleted leads
+
   useEffect(() => {
     dispatch(fetchAllFollowUps());
     dispatch(fetchLeads());
@@ -54,8 +57,8 @@ function MainDashboard() {
             <div className="dashboard-card">
               <div className="card-icon"><FaCalendarCheck /></div>
               <div className="card-content">
-                <h4>Today Reminders</h4>
-                <h1>{todayLeads?.length || 0}</h1>
+                <h4>Total Leads</h4>
+                <h1>{totalLeads?.length || 0}</h1> {/* Display total leads */}
               </div>
             </div>
 
@@ -68,10 +71,10 @@ function MainDashboard() {
             </div>
 
             <div className="dashboard-card">
-              <div className="card-icon"><FaCheckCircle /></div>
+              <div className="card-icon"><FaBell /></div> {/* Changed icon to a bell */}
               <div className="card-content">
-                <h4>Closed Leads</h4>
-                <h1>{closedLeads?.length || 0}</h1>
+                <h4>Today Reminders</h4>
+                <h1>{todayFollowUps?.length || 0}</h1> {/* Display reminders (today's follow-ups) */}
               </div>
             </div>
 
