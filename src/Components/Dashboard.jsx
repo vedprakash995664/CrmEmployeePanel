@@ -3,13 +3,17 @@ import "./CSS/Dashboard.css";
 import { ToastContainer } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2'; 
+import Modal from '../Components/LeadForm';
 import { FaCalendarCheck, FaUserTimes, FaCheckCircle, FaThumbsDown } from 'react-icons/fa';
+
 const Dashboard = ({ children, active }) => {
   const [sidebarActive, setSidebarActive] = useState(false);
   const [dropdownActive, setDropdownActive] = useState(false);
   const [isShow, setIsShow] = useState(false);  
   const userString = sessionStorage.getItem('Emp');
   const name = userString ? JSON.parse(userString) : null;
+  const [isModalOpen, setIsModalOpen] = useState(false);  
+  const [leadData, setLeadData] = useState({});
   
   const navigate = useNavigate();
   
@@ -66,6 +70,21 @@ const Dashboard = ({ children, active }) => {
     }
   }, [navigate]);
 
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+  
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+  
+  const handleAddNew = () => {
+    // Close sidebar when opening the modal
+    setSidebarActive(false);
+    setLeadData({});
+    openModal();
+  };
+  
   return (
     <div className="dashboard-container">
       <div className={`sidebar ${sidebarActive ? "active" : ""}`}>
@@ -79,10 +98,18 @@ const Dashboard = ({ children, active }) => {
                 </button>
               </li>
             </Link>
+            <li>
+              <button 
+                className={`sidebar-link ${active === 'addLead' && 'active'}`} 
+                onClick={handleAddNew}
+              >
+                <i className="ri-information-2-fill"></i> &nbsp;Add Leads
+              </button>
+            </li>
             <Link className="navigation-link" to="/leads">
               <li>
                 <button className={`sidebar-link ${active === 'lead' && 'active'}`}>
-                <i class="ri-information-2-fill"></i> &nbsp;Leads
+                <i className="ri-information-2-fill"></i> &nbsp;Leads
                 </button>
               </li>
             </Link>
@@ -117,7 +144,7 @@ const Dashboard = ({ children, active }) => {
             <Link className="navigation-link" to="/calender">
               <li>
                 <button className={`sidebar-link ${active === 'calender' && 'active'}`}>
-                <i class="ri-calendar-schedule-fill"></i> &nbsp; Calender
+                <i className="ri-calendar-schedule-fill"></i> &nbsp; Calender
                 </button>
               </li>
             </Link>
@@ -143,7 +170,7 @@ const Dashboard = ({ children, active }) => {
 
       <div className="main-content">
         <header className="header">
-          <h1 className="header-title">Welcome Back, {name.empName}</h1>
+          <h1 className="header-title">Welcome Back, {name?.empName || 'User'}</h1>
           <button className="hamburger" onClick={toggleSidebar}>
             {sidebarActive ? "×" : "☰"}
           </button>
@@ -171,7 +198,13 @@ const Dashboard = ({ children, active }) => {
           </div>
         </div>
       </div>
-
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={closeModal} 
+        title="Add New Lead" 
+        buttonTitle="Add Lead" 
+        leadData={leadData}
+      />
       <ToastContainer />
     </div>
   );

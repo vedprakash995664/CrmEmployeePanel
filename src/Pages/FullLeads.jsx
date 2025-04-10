@@ -15,8 +15,9 @@ import Checkbox from '@mui/material/Checkbox';
 import Dashboard from '../Components/Dashboard'
 import Swal from "sweetalert2";
 import axios from "axios";
-import { fetchPriority, fetchSources, fetchTags } from "../Features/LeadSlice";
+import { fetchLeadStatus, fetchPriority, fetchSources, fetchTags } from "../Features/LeadSlice";
 import { useDispatch, useSelector } from "react-redux";
+
 function FullLeads() {
   const APi_Url = import.meta.env.VITE_API_URL
   const [noteOpen, setNoteOpen] = useState(false);
@@ -30,14 +31,16 @@ function FullLeads() {
   const dispatch = useDispatch();
   const priorityData = useSelector((state) => state.leads.Priority);
   const sourcesData = useSelector((state) => state.leads.leadSources);
+  const LeadStatusData = useSelector((state) => state.leads.LeadStatus);
   const tagData = useSelector((state) => state.leads.tag);
   const [priorityOptions, setPriorityOptions] = useState([]);
-  const [sourcesOptions, setSourcesOptions] = useState([])
+  const [sourcesOptions, setSourcesOptions] = useState([]);
+  const [leadStatusOptions, setLeadStatusOptions] = useState([]);
+  
   const MenuProps = {
     PaperProps: {
       style: {
         maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_BOTTOM,
-
       },
     },
   };
@@ -52,8 +55,6 @@ function FullLeads() {
       tags: value
     }));
   };
-
-
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -78,8 +79,6 @@ function FullLeads() {
     LeadStatus: viewdata.leadStatus || "",
   });
 
-
-
   const FormApiData = {
     name: formData.Name,
     email: formData.Email,
@@ -95,12 +94,23 @@ function FullLeads() {
     tags: selectedTags
   };
 
-
   useEffect(() => {
     dispatch(fetchPriority());
     dispatch(fetchSources());
     dispatch(fetchTags());
+    dispatch(fetchLeadStatus());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (LeadStatusData && Array.isArray(LeadStatusData)) {
+      setLeadStatusOptions(
+        LeadStatusData.map((leadStatus) => ({
+          label: leadStatus.leadStatusText,
+          value: leadStatus.leadStatusText
+        }))
+      );
+    }
+  }, [LeadStatusData]);
 
   useEffect(() => {
     if (priorityData && Array.isArray(priorityData)) {
@@ -123,33 +133,31 @@ function FullLeads() {
       );
     }
   }, [sourcesData]);
+
   useEffect(() => {
     const tokenId = sessionStorage.getItem('Token');
     if (!tokenId) {
       navigate('/')
     }
 
-
     if (fromEdit) {
       setIsEditing(true);
       setIsDisabled(false);
     }
-
   }, [navigate, fromEdit])
 
   const [isDisabled, setIsDisabled] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-
   const handleUpdate = () => {
     setIsEditing(true);
     setIsDisabled(false);
   };
-
 
   const handleSave = async () => {
     setIsLoading(true);  // Start loader (set isLoading to true)
@@ -181,9 +189,9 @@ function FullLeads() {
       toast.error("Error occurred while updating. Please try again.");
     } finally {
       setIsLoading(false);  // Stop loader (set isLoading to false)
-    }   
+    }
   };
- 
+
   const [followUps, setFollowUps] = useState([]);
   const fetchFollowUps = async () => {
     try {
@@ -196,6 +204,7 @@ function FullLeads() {
       toast.error("Error fetching follow-up data. Please try again.");
     }
   };
+
   useEffect(() => {
     if (TableTitle === 'Closed Lead') {
       setActionBtn(false);
@@ -208,14 +217,18 @@ function FullLeads() {
     }
     fetchFollowUps();
   }, [viewdata._id]);
+
   const handleStickyNote = (viewdata) => {
     setNoteOpen(true);
   }
+
   const closeNote = () => {
     setNoteOpen(false)
     fetchFollowUps();
   }
+
   const [activeData, setActiveData] = useState()
+
   useEffect(() => {
     if (TableTitle == 'Leads') {
       setActiveData("dashboard")
@@ -236,9 +249,10 @@ function FullLeads() {
       setActiveData("negative")
     }
   })
+
   const handleBack = () => {
     if (TableTitle == 'Leads') {
-      navigate('/Main');  
+      navigate('/Main');
     }
     if (TableTitle == 'calender') {
       navigate('/calender');
@@ -259,6 +273,7 @@ function FullLeads() {
       navigate("/negative")
     }
   };
+
   const handleMarkNegative = async () => {
     const result = await Swal.fire({
       title: 'Are you sure?',
@@ -306,9 +321,7 @@ function FullLeads() {
     }
   };
 
-
   //mark as close
-
   const handleCloseForAlways = async () => {
     const result = await Swal.fire({
       title: 'Are you sure?',
@@ -356,8 +369,6 @@ function FullLeads() {
     }
   };
 
-
-
   const handleUnCloseForAlways = async () => {
     const result = await Swal.fire({
       title: 'Are you sure?',
@@ -404,6 +415,7 @@ function FullLeads() {
       });
     }
   };
+
   const handleUnNegativeForAlways = async () => {
     const result = await Swal.fire({
       title: 'Are you sure?',
@@ -451,10 +463,8 @@ function FullLeads() {
     }
   };
 
-
   return (
     <div >
-
       <Dashboard active={activeData}>
         <div className="content fullLead-outer">
           <>
@@ -644,17 +654,20 @@ function FullLeads() {
                       </FormControl>
                     </div>
 
-                    {/* <div>
+                    <div>
                       <div className="label">Lead Status</div>
-                      <input
-                        type="text"
-                        className="input-field"
+                      <Dropdown
+                        id="LeadStatus"
                         name="LeadStatus"
                         value={formData.LeadStatus}
-                        onChange={handleChange}
+                        options={leadStatusOptions}
+                        onChange={(e) => handleChange({ target: { name: 'LeadStatus', value: e.value } })}
+                        optionLabel="label"
                         disabled={isDisabled}
+                        placeholder="Select lead status"
+                        className="p-dropdown"
                       />
-                    </div> */}
+                    </div>
                   </div>
                   <div className="view-edit-btn">
                     <button onClick={isEditing ? handleSave : handleUpdate}>
@@ -680,7 +693,7 @@ function FullLeads() {
                 </div>
 
                 <div className="follow-ups">
-                  {/* Hard-coded Follow-ups */}
+                  {/* Follow-ups list */}
                   {followUps.map((followUp, index) => (
                     <div key={followUp.id} className="follow-outer">
                       <div className="follow-body">
@@ -698,14 +711,11 @@ function FullLeads() {
                       <hr />
                     </div>
                   ))}
-                  {/* Add more follow-ups manually if needed */}
                 </div>
                 {actionBtn && (
                   <div className="lead-action-btn">
-
                     <button className="negative-btn" onClick={() => handleMarkNegative()}>Mark as Negative</button>
                     <button className="close-btn" onClick={() => handleCloseForAlways()}>Mark as Close</button>
-
                   </div>
                 )}
                 {unCloseActionBtn && (
