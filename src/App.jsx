@@ -57,7 +57,7 @@ function App() {
           <Route  path='/missedLeads/fullLeads' element={<FullLeads/>}/>
           <Route  path='/closed/fullLeads' element={<FullLeads/>}/>
           <Route  path='/negative/fullLeads' element={<FullLeads/>}/>
-          <Route  path='/calender/fullLeads' element={<Calander/>}/>
+          <Route  path='/calender/fullLeads' element={<FullLeads/>}/>
           <Route  path='/notes' element={<FollowUpNotes/>}/>
         </Routes>
       </Router>

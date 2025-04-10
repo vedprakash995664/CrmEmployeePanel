@@ -240,6 +240,9 @@ function FullLeads() {
     if (TableTitle == 'Leads') {
       navigate('/Main');
     }
+    if (TableTitle == 'calender') {
+      navigate('/calender');
+    }
     else if (TableTitle == 'Total Leads') {
       navigate("/leads")
     }

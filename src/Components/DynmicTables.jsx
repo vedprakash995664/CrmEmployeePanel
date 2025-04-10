@@ -6,9 +6,10 @@ import { InputText } from 'primereact/inputtext';
 import Modal from './LeadForm';
 import { useNavigate } from 'react-router-dom';
 import FollowUpNotes from './FollowUpNotes';
+import { ClipLoader } from 'react-spinners'; // Import ClipLoader for loading animation
 
 export default function DynamicTable({ lead, TableTitle }) {
-    const APi_Url=import.meta.env.VITE_API_URL
+    const APi_Url = import.meta.env.VITE_API_URL;
     const [showBtn, setShowBtn] = useState(true);
     const [noteOpen, setNoteOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,6 +17,7 @@ export default function DynamicTable({ lead, TableTitle }) {
     const [isEditMode, setEditMode] = useState(false);
     const [buttonTitle, setButtonTitle] = useState('');
     const [leadData, setLeadData] = useState([]);
+    const [loading, setLoading] = useState(false); // Loading state for table data
     const navigate = useNavigate();
     const [filters, setFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -145,131 +147,143 @@ export default function DynamicTable({ lead, TableTitle }) {
         setNoteOpen(false);
     };
 
-    useEffect(()=>{
-        if(TableTitle==='Closed Lead'){
-            setShowBtn(false)
+    useEffect(() => {
+        if (TableTitle === 'Closed Lead') {
+            setShowBtn(false);
+        } else if (TableTitle === 'Negative Lead') {
+            setShowBtn(false);
         }
-        else if(TableTitle==='Negative Lead'){
-            setShowBtn(false)
-        }
-    })
+        setLoading(true);
+        setTimeout(() => {
+            setLoading(false);
+        }, 1500);
+    }, [TableTitle]);
+
     const header = renderHeader();
 
     return (
         <div className="card">
-            <DataTable
-                value={lead}
-                rows={rows}
-                first={first}
-                paginator
-                dataKey="id"
-                filters={filters}
-                filterDisplay="row"
-                globalFilterFields={['name', 'phone', 'priority', 'source']}
-                header={header}
-                emptyMessage="No Leads found."
-                onPage={onPageChange}
-                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-                removableSort
-                style={{ borderRadius: '10px' }}
-            >
-                <Column
-                    header="SR No."
-                    body={(rowData, { rowIndex }) => rowIndex + 1 + first}
-                    style={{ width: '10%', padding: '0px 0px 0px 20px' }}
-                ></Column>
-                <Column field="name" header="NAME" sortable style={{ width: '25%' }}></Column>
-                <Column
-                    field="phone"
-                    header="PHONE"
-                    sortable
-                    style={{ width: '20%' }}
-                    body={(rowData) => (
-                        <div className="flex justify-content-between gap-2 items-center">
-                            <div style={{ paddingTop: '10px' }}>{rowData?.phone}</div>&emsp;
-                            {showBtn && (
-                                <>
-                                    <div
-                                        style={{
-                                            height: '40px',
-                                            width: '40px',
-                                            backgroundColor: '#EDF1FF',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            borderRadius: '50%',
-                                        }}
-                                    >
-                                        <a
-                                            href={`tel:${rowData?.phone}`}
+            {loading ? (
+                // Show loader while data is being fetched
+                <div className="flex justify-content-center align-items-center" style={{ height: '200px' }}>
+                    <ClipLoader color="#3454D1" size={50} />
+                </div>
+            ) : (
+                // Render the table if data is ready
+                <DataTable
+                    value={lead}
+                    rows={rows}
+                    first={first}
+                    paginator
+                    dataKey="id"
+                    filters={filters}
+                    filterDisplay="row"
+                    globalFilterFields={['name', 'phone', 'priority', 'source']}
+                    header={header}
+                    emptyMessage="No Leads found."
+                    onPage={onPageChange}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+                    removableSort
+                    style={{ borderRadius: '10px' }}
+                >
+                    <Column
+                        header="SR No."
+                        body={(rowData, { rowIndex }) => rowIndex + 1 + first}
+                        style={{ width: '10%', padding: '0px 0px 0px 20px' }}
+                    ></Column>
+                    <Column field="name" header="NAME" sortable style={{ width: '25%' }}></Column>
+                    <Column
+                        field="phone"
+                        header="PHONE"
+                        sortable
+                        style={{ width: '20%' }}
+                        body={(rowData) => (
+                            <div className="flex justify-content-between gap-2 items-center">
+                                <div style={{ paddingTop: '10px' }}>{rowData?.phone}</div>&emsp;
+                                {showBtn && (
+                                    <>
+                                        <div
                                             style={{
-                                                cursor: 'pointer',
-                                                textDecoration: 'none',
-                                                fontSize: '18px',
-                                                color: '#3454D1',
+                                                height: '40px',
+                                                width: '40px',
+                                                backgroundColor: '#EDF1FF',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                borderRadius: '50%',
                                             }}
-                                            className="ri-phone-fill"
-                                        />
-                                    </div>
-                                    <div
-                                        style={{
-                                            height: '40px',
-                                            width: '40px',
-                                            backgroundColor: '#EDF1FF',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            borderRadius: '50%',
-                                        }}
-                                    >
-                                        <a href={`https://wa.me/${91+rowData?.phone}`} target="_blank" rel="noopener noreferrer">
-                                            <button
-                                                style={{
-                                                    color: 'green',
-                                                    border: 'none',
-                                                    background: 'transparent',
-                                                    fontSize: '20px',
-                                                    cursor: 'pointer',
-                                                    position: 'relative',
-                                                    bottom: '2px',
-                                                }}
-                                            >
-                                                <i className="ri-whatsapp-line"></i>
-                                            </button>
-                                        </a>
-                                    </div>
-                                    <div
-                                        style={{
-                                            height: '40px',
-                                            width: '40px',
-                                            backgroundColor: '#EDF1FF',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            borderRadius: '50%',
-                                        }}
-                                    >
-                                        <button onClick={() => handleStickyNote(rowData)} style={{ border: 'none', background: 'transparent' }}>
+                                        >
                                             <a
+                                                href={`tel:${rowData?.phone}`}
                                                 style={{
                                                     cursor: 'pointer',
                                                     textDecoration: 'none',
                                                     fontSize: '18px',
-                                                    color: '#657C7B',
+                                                    color: '#3454D1',
                                                 }}
-                                                className="ri-sticky-note-add-fill"
+                                                className="ri-phone-fill"
                                             />
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    )}
-                ></Column>
-                <Column field="priority" header="PRIORITY" sortable style={{ width: '15%' }}></Column>
-                <Column field="sources" header="SOURCES" sortable style={{ width: '15%' }}></Column>
-                <Column header="ACTION" body={actionBodyTemplate} style={{ width: '15%' }}></Column>
-            </DataTable>
+                                        </div>
+                                        <div
+                                            style={{
+                                                height: '40px',
+                                                width: '40px',
+                                                backgroundColor: '#EDF1FF',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                borderRadius: '50%',
+                                            }}
+                                        >
+                                            <a href={`https://wa.me/${91 + rowData?.phone}`} target="_blank" rel="noopener noreferrer">
+                                                <button
+                                                    style={{
+                                                        color: 'green',
+                                                        border: 'none',
+                                                        background: 'transparent',
+                                                        fontSize: '20px',
+                                                        cursor: 'pointer',
+                                                        position: 'relative',
+                                                        bottom: '2px',
+                                                    }}
+                                                >
+                                                    <i className="ri-whatsapp-line"></i>
+                                                </button>
+                                            </a>
+                                        </div>
+                                        <div
+                                            style={{
+                                                height: '40px',
+                                                width: '40px',
+                                                backgroundColor: '#EDF1FF',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                borderRadius: '50%',
+                                            }}
+                                        >
+                                            <button onClick={() => handleStickyNote(rowData)} style={{ border: 'none', background: 'transparent' }}>
+                                                <a
+                                                    style={{
+                                                        cursor: 'pointer',
+                                                        textDecoration: 'none',
+                                                        fontSize: '18px',
+                                                        color: '#657C7B',
+                                                    }}
+                                                    className="ri-sticky-note-add-fill"
+                                                />
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    ></Column>
+                    <Column field="priority" header="PRIORITY" sortable style={{ width: '15%' }}></Column>
+                    <Column field="sources" header="SOURCES" sortable style={{ width: '15%' }}></Column>
+                    <Column header="ACTION" body={actionBodyTemplate} style={{ width: '15%' }}></Column>
+                </DataTable>
+            )}
 
             <Modal isOpen={isModalOpen} onClose={closeModal} title={title} buttonTitle={buttonTitle} leadData={leadData} />
             <FollowUpNotes isOpenNote={noteOpen} oncloseNote={closeNote} leadData={leadData} />

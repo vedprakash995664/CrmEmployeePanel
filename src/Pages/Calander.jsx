@@ -7,6 +7,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { ProgressSpinner } from 'primereact/progressspinner';  // Import the spinner component
 import { useNavigate } from 'react-router-dom';
 
 const LeadCalendar = () => {
@@ -41,7 +42,7 @@ const LeadCalendar = () => {
           }
           acc[dateString].push(followup);
           return acc;
-        }, {});
+        }, {});   
 
         setFollowupsByDate(groupedFollowups);
         setLoading(false);
@@ -62,7 +63,7 @@ const LeadCalendar = () => {
       if (followupsOnDate.length > 0) {
         return (
           <div className="lead-count">
-            <i class="ri-bard-fill"></i>
+            <i className="ri-bard-fill"></i>
           </div>
         );
       }
@@ -77,7 +78,6 @@ const LeadCalendar = () => {
     }
   };
 
-  
   const handleDateChange = (newDate) => {
     setDate(newDate);
     const dateString = newDate.toLocaleDateString('en-CA');
@@ -94,9 +94,23 @@ const LeadCalendar = () => {
     window.location.href = `tel:${phoneNumber}`;
   };
 
-  if (loading) return <Dashboard><div>Loading...</div></Dashboard>;
-  if (error) return <Dashboard><div>Error: {error}</div></Dashboard>;
+  // Loader component display
+  if (loading) return (
+    <Dashboard>
+      <div className="loading-container">
+        <ProgressSpinner style={{ width: '50px', height: '50px' }} />
+        <p>Loading...</p>
+      </div>
+    </Dashboard>
+  );
 
+  if (error) return <Dashboard><div>Error: {error}</div></Dashboard>;
+  const handleView = (rowData) => {
+    const viewdata = rowData.leadId;
+    console.log(viewdata.leadId);
+    const TableTitle='calender'
+    navigate('fullLeads', { state: { viewdata, TableTitle} });
+};
   return (
     <Dashboard active={'calender'}>
       <div className="calendar-container">
@@ -109,7 +123,6 @@ const LeadCalendar = () => {
         />
       </div>
 
-      
       <Dialog 
         header={`Follow-ups on ${date.toDateString()}`} 
         visible={visible} 
@@ -118,23 +131,16 @@ const LeadCalendar = () => {
       >
         {selectedDateFollowups.length > 0 ? (
           <DataTable value={selectedDateFollowups} stripedRows paginator rows={10} responsive>
-            
             <Column body={srNoTemplate} header="Sr. No." style={{ textAlign: 'center' }} />
-            
-            
             <Column field="leadId.name" header="Name" sortable />
-            
-            
             <Column field="leadId.phone" header="Mobile Number" sortable />
-            
-            
             <Column 
               header="Action" 
               body={(rowData) => (
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <Button 
                     label="View" 
-                    onClick={() => navigate('/leads')} 
+                    onClick={() => handleView(rowData)} 
                     className="p-button-success p-mr-2"
                   />
                   <Button 

@@ -2,6 +2,17 @@
 .dialog-calaneder{
   /* width: 50vw; */
 }
+
+/* Add this to your CSS file */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;  /* Full page height */
+  flex-direction: column;
+  text-align: center;
+}
+
 .lead-count{
   display: flex;
   justify-content: center;

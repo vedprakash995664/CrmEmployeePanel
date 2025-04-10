@@ -3,7 +3,7 @@ import "./CSS/Dashboard.css";
 import { ToastContainer } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2'; 
-
+import { FaCalendarCheck, FaUserTimes, FaCheckCircle, FaThumbsDown } from 'react-icons/fa';
 const Dashboard = ({ children, active }) => {
   const [sidebarActive, setSidebarActive] = useState(false);
   const [dropdownActive, setDropdownActive] = useState(false);
@@ -89,28 +89,28 @@ const Dashboard = ({ children, active }) => {
             <Link className="navigation-link" to="/todayRminders">
               <li>
                 <button className={`sidebar-link ${active === 'reminder' && 'active'}`}>
-                  <i className="ri-notification-3-fill"></i>&nbsp;Today Reminders
+                  <FaCalendarCheck style={{color:"#3454D1"}}/>&nbsp;Today Reminders
                 </button>
               </li>
             </Link>
             <Link className="navigation-link" to="/missedLeads">
               <li>
                 <button className={`sidebar-link ${active === 'missedLead' && 'active'}`}>
-                  <i className="ri-mail-unread-fill"></i> &nbsp;Missed Leads
+                  <FaUserTimes style={{color:"#3454D1"}}/>&nbsp;Missed Leads
                 </button>
               </li>
             </Link>
             <Link className="navigation-link" to="/closed">
               <li>
                 <button className={`sidebar-link ${active === 'closedLead' && 'active'}`}>
-                <i class="ri-shield-check-fill"></i> &nbsp; Closed Leads
+               <FaCheckCircle style={{color:"#3454D1"}}/>&nbsp; Closed Leads
                 </button>
               </li>
             </Link>
             <Link className="navigation-link" to="/negative">
               <li>
                 <button className={`sidebar-link ${active === 'negative' && 'active'}`}>
-                <i class="ri-spam-3-fill"></i> &nbsp; Negative Leads
+                <FaThumbsDown style={{color:"#3454D1"}}/> &nbsp; Negative Leads
                 </button>
               </li>
             </Link>
