@@ -18,7 +18,7 @@ function MainDashboard() {
   const leads = useSelector((state) => state.leads.leads);
 
   const today = new Date().toISOString().split("T")[0];
-
+  
   const todayFollowUps = followUps.followups?.filter(
     (item) => item.nextFollowupDate?.split("T")[0] === today
   );

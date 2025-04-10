@@ -238,7 +238,7 @@ function FullLeads() {
   })
   const handleBack = () => {
     if (TableTitle == 'Leads') {
-      navigate('/Main');
+      navigate('/Main');  
     }
     if (TableTitle == 'calender') {
       navigate('/calender');
@@ -703,8 +703,8 @@ function FullLeads() {
                 {actionBtn && (
                   <div className="lead-action-btn">
 
-                    <button className="close-btn" onClick={() => handleCloseForAlways()}>Mark as Close</button>
                     <button className="negative-btn" onClick={() => handleMarkNegative()}>Mark as Negative</button>
+                    <button className="close-btn" onClick={() => handleCloseForAlways()}>Mark as Close</button>
 
                   </div>
                 )}

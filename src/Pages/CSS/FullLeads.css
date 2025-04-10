@@ -181,7 +181,7 @@ hr {
   justify-content: center;
   align-items: center;
   gap: 40px;
-  margin-bottom: 20px;
+  margin-bottom: 100px;
 }
 .lead-action-btn button{
   padding: 10px;
@@ -195,11 +195,11 @@ hr {
 }
 .lead-action-btn>.close-btn{
   background-color:#3454D1;
-  width: 25%;
+  width: auto;
 }
 .lead-action-btn>.negative-btn{
   background-color: red;
-  width: 26%;
+  width: auto;
 }
 
 /* Media Query for smaller screens */
