@@ -227,6 +227,7 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
               filter
               placeholder="Select Tags"
               className="p-multiselect p-component"
+              panelStyle={{ width: '100px' }} 
             />
           </div>
         </div>

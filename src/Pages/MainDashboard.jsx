@@ -80,6 +80,7 @@ function MainDashboard() {
 
             <div className="dashboard-card">
               <div className="card-icon"><FaThumbsDown /></div>
+              
               <div className="card-content">
                 <h4>Negative Leads</h4>
                 <h1>{negativeLeads?.length || 0}</h1>
