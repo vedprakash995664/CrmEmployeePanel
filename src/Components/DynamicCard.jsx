@@ -3,7 +3,7 @@ import './CSS/DynamicCard.css';
 import FollowUpNotes from './FollowUpNotes';
 import Modal from './LeadForm';
 import { useNavigate } from 'react-router-dom';
-import { ClipLoader } from 'react-spinners';  // Optional: import a loading spinner
+import { ClipLoader } from 'react-spinners'; // Optional: import a loading spinner
 
 function DynamicCard({ leadCard, TableTitle }) {
   const APi_Url = import.meta.env.VITE_API_URL;
@@ -13,23 +13,22 @@ function DynamicCard({ leadCard, TableTitle }) {
   const [isEditMode, setEditMode] = useState(false);
   const [buttonTitle, setButtonTitle] = useState('');
   const [leadData, setLeadData] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');  // State for the search query
-  const [currentPage, setCurrentPage] = useState(1);  // Track the current page
-  const [itemsPerPage] = useState(5);  // Number of items per page
-  const [loading, setLoading] = useState(true); // Loading state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulate loading the data
     setTimeout(() => {
-      setLoading(false);  // Set loading to false after 2 seconds (replace with real API call)
+      setLoading(false);
     }, 2000);
   }, []);
 
   const openModal = (isEdit) => {
     setEditMode(isEdit);
-    setTitle(isEdit ? "Update Lead" : "Add New Lead");
-    setButtonTitle(isEdit ? "Update Lead" : "Add Lead");
+    setTitle(isEdit ? 'Update Lead' : 'Add New Lead');
+    setButtonTitle(isEdit ? 'Update Lead' : 'Add Lead');
     setIsModalOpen(true);
   };
 
@@ -48,7 +47,7 @@ function DynamicCard({ leadCard, TableTitle }) {
     navigate('fullLeads', { state: { viewdata, TableTitle } });
   };
 
-  const handleStickyNote = (lead) => {  
+  const handleStickyNote = (lead) => {
     setLeadData(lead);
     setNoteOpen(true);
   };
@@ -57,38 +56,32 @@ function DynamicCard({ leadCard, TableTitle }) {
     setNoteOpen(false);
   };
 
-  // Function to handle search input change
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
-    setCurrentPage(1); // Reset to the first page on search
+    setCurrentPage(1);
   };
 
-  // Function to filter leads based on the search query
-  const filteredLeads = leadCard?.filter(lead => {
+  const filteredLeads = leadCard?.filter((lead) => {
     return (
-      lead?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      lead?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       lead?.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead?.priority?.toLowerCase().includes(searchQuery.toLocaleLowerCase()) ||
-      lead?.source?.toLocaleLowerCase().includes(searchQuery.toLocaleLowerCase())
+      lead?.priority?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      lead?.source?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
 
-  // Paginate the leads to show only the current page's items
   const indexOfLastLead = currentPage * itemsPerPage;
   const indexOfFirstLead = indexOfLastLead - itemsPerPage;
   const currentLeads = filteredLeads?.slice(indexOfFirstLead, indexOfLastLead);
 
-  // Change page handler
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Calculate total pages
   const totalPages = Math.ceil(filteredLeads?.length / itemsPerPage);
 
   return (
-    <div className='dynamic-card-outer'>
-      {/* Search Box */}
+    <div className="dynamic-card-outer">
       <div className="dynamic-search-box">
         <input
           type="text"
@@ -99,103 +92,145 @@ function DynamicCard({ leadCard, TableTitle }) {
         />
       </div>
 
-      {/* Show Loader if Data is Loading */}
       {loading ? (
         <div className="loader-container">
-          <ClipLoader size={50} color={"#3454D1"} loading={loading} />
+          <ClipLoader size={50} color={'#3454D1'} loading={loading} />
         </div>
       ) : (
         <>
-          {/* Display Filtered and Paginated Leads */}
-          {currentLeads?.map((lead, index) => (
-            <div key={index} className='Dynamic-card'>
-              <div className='dynamic-card-details-body'>
-                <div className='dynamic-card-details'>
-                  <dl className='card-data'>
-                    <dt>Name</dt>
-                    <dd>{lead.name}</dd>
-                    <dt>Number</dt>
-                    <dd>{lead.phone}</dd>
-                    <div>
-                      <dt>Priority</dt>
-                      <dd>{lead.priority}</dd>
-                      <dt>Sources</dt>
-                      <dd>{lead.sources}</dd>
+          {currentLeads?.map((lead, index) => {
+            const serialNumber = indexOfFirstLead + index + 1;
+            return (
+              <div key={index} className="Dynamic-card">
+                {/* Serial Number Display */}
+                  <strong style={{float:'right'}}>#{serialNumber}</strong>
+                <div className="dynamic-card-details-body">
+                  <div className="dynamic-card-details">
+                    <div className="card-body">
+                      <p><span className='card-heading'>Name:- </span><span>{lead.name}</span></p>
+                      <p><span className='card-heading'>Mobile:- </span> <span>{lead.phone}</span></p>
+                      <div className="priority-source">
+                        <p><span className='card-heading'>Priority:- </span> <span>{lead.priority}</span></p>
+                        <p><span className='card-heading'>Source:- </span> <span>{lead.sources}</span></p>
+                      </div>
+                      <div className="tags">
+                        {/* <span className='card-heading'>Tag:-</span> */}
+                        {lead.tags.map((tag, index) => (
+                          <span key={index} className="tag">{tag}</span>
+                        ))}
+                      </div>
+
                     </div>
-                  </dl>
+
+
+
+                  </div>
                 </div>
-                <div className='dynamic-card-calls'>
-                  <div style={{ height: "40px", width: "40px", backgroundColor: "#EDF1FF", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
+
+                <div className="dynamic-card-footer">
+                  <div className='action-btn-footer'>
+                  <div className="call-icon-wrapper">
                     <a
                       href={`tel:${lead.phone}`}
                       style={{
                         cursor: 'pointer',
                         textDecoration: 'none',
-                        fontSize: '18px',
+                        fontSize: '15px',
                         color: '#3454D1',
                       }}
                       className="ri-phone-fill"
                     />
                   </div>
-                  <div style={{ height: "40px", width: "40px", backgroundColor: "#EDF1FF", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
-                    <a href={`https://wa.me/${lead.phone}`} style={{ textDecoration: "none" }} target="_blank" rel="noopener noreferrer">
-                      <button style={{
-                        color: "green", border: "none", background: "transparent", fontSize: "20px", cursor: "pointer", position: "relative",
-                        bottom: "2px"
-                      }}>
+
+                  <div className="call-icon-wrapper">
+                    <a
+                      href={`https://wa.me/${lead.phone}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <button
+                        style={{
+                          color: 'green',
+                          border: 'none',
+                          background: 'transparent',
+                          fontSize: '15px',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          bottom: '2px',
+                        }}
+                      >
                         <i className="ri-whatsapp-line"></i>
                       </button>
                     </a>
                   </div>
-                  <div style={{ height: "40px", width: "40px", backgroundColor: "#EDF1FF", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
-                    <button onClick={() => handleStickyNote(lead)} style={{ border: "none", background: "transparent" }}>
+
+                  <div className="call-icon-wrapper">
+                    <button
+                      onClick={() => handleStickyNote(lead)}
+                      style={{ border: 'none', background: 'transparent' }}
+                    >
                       <a
                         style={{
                           cursor: 'pointer',
                           textDecoration: 'none',
-                          fontSize: '18px',
+                          fontSize: '15px',
                           color: '#657C7B',
                         }}
                         className="ri-sticky-note-add-fill"
                       />
                     </button>
                   </div>
+                  </div>
+                  <div className='action-abtn'>
+                  <div className="call-icon-wrapper">
+                    <button
+                      style={{
+                        color: '#3454D1',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        fontSize: '15px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => handleEdit(lead)}
+                    >
+                      <i className="ri-edit-box-fill"></i>
+                    </button>
+                  </div>
+
+                  <div className="call-icon-wrapper">
+                    <button
+                      onClick={() => handleView(lead)}
+                      style={{
+                        color: 'red',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        fontSize: '15px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <i className="ri-eye-line"></i>
+                    </button>
+                  </div>
+                  </div>
                 </div>
               </div>
-              <div className='dynamic-card-footer'>
-                <div style={{ height: "40px", width: "40px", backgroundColor: "#EDF1FF", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
-                  <button
-                    style={{ color: "#3454D1", backgroundColor: "transparent", border: "none", fontSize: "25px", cursor: "pointer" }}
-                    onClick={() => handleEdit(lead)}
-                  >
-                    <i className="ri-edit-box-fill"></i>
-                  </button>
-                </div>
-                <div style={{ height: "40px", width: "40px", backgroundColor: "#EDF1FF", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%" }}>
-                  <button
-                    onClick={() => handleView(lead)}
-                    style={{ color: "red", backgroundColor: "transparent", border: "none", fontSize: "25px", cursor: "pointer" }}
-                  >
-                    <i className="ri-eye-line"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Pagination Controls */}
           <div className="pagination">
-            <button 
-              onClick={() => handlePageChange(currentPage - 1)} 
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
               <i className="ri-arrow-left-line"></i>
             </button>
             <span>
-              {currentPage} of {totalPages} {/* Display current page and total pages */}
+              {currentPage} of {totalPages}
             </span>
-            <button 
-              onClick={() => handlePageChange(currentPage + 1)} 
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
               <i className="ri-arrow-right-line"></i>
@@ -204,8 +239,18 @@ function DynamicCard({ leadCard, TableTitle }) {
         </>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={closeModal} title={title} buttonTitle={buttonTitle} leadData={leadData} />
-      <FollowUpNotes isOpenNote={noteOpen} oncloseNote={closeNote} leadData={leadData} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={title}
+        buttonTitle={buttonTitle}
+        leadData={leadData}
+      />
+      <FollowUpNotes
+        isOpenNote={noteOpen}
+        oncloseNote={closeNote}
+        leadData={leadData}
+      />
     </div>
   );
 }

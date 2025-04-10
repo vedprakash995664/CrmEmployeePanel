@@ -7,7 +7,20 @@
     padding: 10px;
     box-sizing: border-box;
     margin-bottom: 200px;
+}   
+
+
+.call-icon-wrapper {
+  height: 30px;
+  width: 30px;
+  background-color: #edf1ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-bottom: 5px;
 }
+
 .dynamic-search-box {
     margin-bottom: 20px;
     text-align: center;
@@ -28,6 +41,7 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     padding: 10px;
+    padding-bottom: 0;
   }
   
   .pagination {
@@ -82,8 +96,9 @@
   
 /* Style for individual cards */
 .Dynamic-card {
-    height: 320px;
+    height: auto;
     width: 100%;
+    line-height: 0.8;
     background-color: #ffffff;
     border-radius: 15px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -99,33 +114,61 @@
 
 /* Card content area */
 .dynamic-card-details-body {
-    height: 75%;
-    display: flex;
-    padding: 20px;
+    height: 70; 
+    /* display: flex; */
+    padding: 0 9px;
     box-sizing: border-box;
 }
-
-/* Lead information container */
-.dynamic-card-details {
-    width: 70%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+.card-heading{
+  font-weight: 600;
+  font-size: 14px;
+}
+.action-btn-footer{
+  display: flex;
+  gap: 10px;
+}
+.action-abtn{
+  display: flex;
+  gap: 10px;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.card-data {
-    font-family: 'Poppins', serif;
-    line-height: 1.5;
+.tag {
+  font-size: 9px;
+  background-color: #dadada;
+  padding: 4px 5px;
+  border-radius: 10px;
+  color:rgb(66, 66, 66);
+  font-family: "Poppins",serif;
+  font-weight: 600;
 }
 
-.card-data dt {
-    font-weight: 600;
-    color: #555;
+.card-body {
+  font-size: 16px;
+  padding: 0;
+  margin: 0;
+}
+.card-body p {
+  margin: 5px 0;  
+}
+.card-body p span{
+  font-size: 12px;
+}
+.card-body p b{
+  font-size: 13px;
+}
+.priority-source {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
-.card-data dd {
-    color: #777;
-    margin: 5px 0;
+.priority-source p {
+  margin: 0;
 }
 
 /* Action buttons section */
@@ -158,12 +201,12 @@
 
 /* Card footer section (buttons at the bottom) */
 .dynamic-card-footer {
-    margin-top: 20px;
-    height: 20%;
+    margin-top: 10px;
+    height: 30%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 30px;
+    padding-top: 10px;
     border-top: 1px solid #f0f0f0;
 }
 
@@ -171,7 +214,7 @@
 .dynamic-card-footer button {
     background-color: transparent;
     border: none;
-    font-size: 18px;
+    font-size: 10px;
     cursor: pointer;
     transition: color 0.3s ease;
 }
