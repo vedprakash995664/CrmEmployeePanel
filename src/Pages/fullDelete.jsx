@@ -57,6 +57,8 @@ function FullLeads() {
   const navigate = useNavigate();
   const location = useLocation();
   const { viewdata } = location.state || [];
+// console.log("duic",viewdata);
+
   const { TableTitle } = location.state || [];
   const { fromEdit } = location.state || [];
   const [selectedTags, setSelectedTags] = useState(viewdata?.tags || []);
@@ -74,9 +76,8 @@ function FullLeads() {
     Country: viewdata.country || "",
     CreatedDate: viewdata.createdAt || "",
     tags: viewdata?.tags || [],
-    LeadStatus: viewdata.leadStatus || "",
+    LeadStatus: viewdata.leadStatus?._id || "",
   });
-
   const FormApiData = {
     name: formData.Name,
     email: formData.Email,
@@ -652,7 +653,7 @@ function FullLeads() {
                       </FormControl>
                     </div>
 
-                    {/* <div>
+                    <div>
                       <div className="label">Lead Status</div>
                       <Dropdown
                         id="LeadStatus"
@@ -665,7 +666,7 @@ function FullLeads() {
                         placeholder="Select lead status"
                         className="p-dropdown"
                       />
-                    </div> */}
+                    </div>
                   </div>
                   <div className="view-edit-btn">
                     <button onClick={isEditing ? handleSave : handleUpdate}>
@@ -703,9 +704,7 @@ function FullLeads() {
                           </div>
                         </div>
                         <div className="follow-ups-txt">
-                          <p><b>Message:- </b><span>{followUp.followupMessage}</span></p>
-                         <p><b>Priority:- </b> <span>{followUp.priority}</span></p>
-                         <p><b>followupStatus:- </b> <span>{followUp.followupStatus}</span></p>
+                          <p>{followUp.followupMessage}</p>
                         </div>
                       </div>
                       <hr />
