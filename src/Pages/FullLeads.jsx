@@ -45,14 +45,29 @@ function FullLeads() {
     },
   };
 
+
+
   const handleTagChange = (event) => {
     const { value } = event.target;
-    setSelectedTags(value);
-    setFormData(prevData => ({
-      ...prevData,
-      tags: value
+    const selectedTagIds = tagData
+      .filter(tag => value.includes(tag.tagName))
+      .map(tag => tag._id);
+
+    setFormData(prev => ({
+      ...prev,
+      tagNames: value,
+      tags: selectedTagIds
     }));
   };
+
+  // const handleTagChange = (event) => {
+  //   const { value } = event.target;
+  //   setSelectedTags(value);
+  //   setFormData(prevData => ({
+  //     ...prevData,
+  //     tags: value
+  //   }));
+  // };
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -66,15 +81,20 @@ function FullLeads() {
     Phone: viewdata.phone,
     Gender: viewdata.gender || "",
     DateOfBirth: viewdata.dob || "",
-    Priority: viewdata.priority || "",
-    Source: viewdata.sources || "",
+    Priority: viewdata?.priority?._id || "",
+    Source: viewdata.sources?._id || "",
     City: viewdata.city || "",
     ZipCode: viewdata.zipCode || "",
     State: viewdata.state || "",
     Country: viewdata.country || "",
     CreatedDate: viewdata.createdAt || "",
-    tags: viewdata?.tags || [],
-    LeadStatus: viewdata.leadStatus || "",
+    tags: Array.isArray(viewdata?.tags)
+    ? viewdata.tags.map(tag => tag._id)
+    : viewdata?.tags?._id ? [viewdata.tags._id] : [],
+  tagNames: Array.isArray(viewdata?.tags)
+    ? viewdata.tags.map(tag => tag.tagName)
+    : viewdata?.tags?.tagName ? [viewdata.tags.tagName] : [],
+    LeadStatus: viewdata.leadStatus?._id || "",
   });
 
   const FormApiData = {
@@ -115,7 +135,7 @@ function FullLeads() {
       setPriorityOptions(
         priorityData.map((priority) => ({
           label: priority.priorityText,
-          value: priority.priorityText
+          value: priority._id
         }))
       );
     }
@@ -126,7 +146,7 @@ function FullLeads() {
       setSourcesOptions(
         sourcesData.map((sources) => ({
           label: sources.leadSourcesText,
-          value: sources.leadSourcesText
+          value: sources._id
         }))
       );
     }
@@ -195,7 +215,7 @@ function FullLeads() {
     try {
       const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/followup/getall/${viewdata._id}`);
       if (response.status === 200) {
-        setFollowUps(Array.isArray(response.data.followups) ? response.data.followups : []);
+        setFollowUps(Array.isArray(response.data.followups) ? response?.data?.followups : []);
       }
     } catch (error) {
       console.error("Error fetching follow-up data:", error);
@@ -549,11 +569,12 @@ function FullLeads() {
                       <div className="label">Priority</div>
                       <Dropdown
                         id="priority"
-                        name="priority"
+                        name="Priority"
                         value={formData.Priority}
                         options={priorityOptions}
-                        onChange={(e) => handleChange({ target: { name: 'Priority', value: e.value } })}
+                        onChange={handleChange}
                         optionLabel="label"
+                        optionValue="value"
                         disabled={isDisabled}
                         placeholder="Select priority"
                         className="p-dropdown"
@@ -566,9 +587,9 @@ function FullLeads() {
                         name="sources"
                         value={formData.Source}
                         options={sourcesOptions}
-                        onChange={(e) => handleChange({ target: { name: 'Source', value: e.value } })}
+                        onChange={handleChange}
                         optionLabel="label"
-                        disabled={isDisabled}
+                        disabled
                         placeholder="Select source"
                         className="p-dropdown"
                       />
@@ -629,30 +650,30 @@ function FullLeads() {
                       />
                     </div>
                     <div>
-                      <FormControl sx={{ width: "250px", m: 1 }}>
-                        <InputLabel id="tags-label">Tags</InputLabel>
-                        <Select
-                          labelId="tags-label"
-                          id="tags-select"
-                          multiple
-                          value={selectedTags}
-                          onChange={handleTagChange}
-                          input={<OutlinedInput label="Tags" />}
-                          renderValue={(selected) => selected.join(', ')}
-                          MenuProps={MenuProps}
-                          disabled={isDisabled}
-                        >
-                          {tagData.map((item) => (
-                            <MenuItem key={item.tagName} value={item.tagName}>
-                              <Checkbox checked={selectedTags.indexOf(item.tagName) > -1} />
-                              <ListItemText primary={item.tagName} />
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </div>
+                    <FormControl sx={{ width: "250px", m: 1 }}>
+                      <InputLabel id="tags-label">Tags</InputLabel>
+                      <Select
+                        labelId="tags-label"
+                        id="tags-select"
+                        multiple
+                        value={formData.tagNames}
+                        onChange={handleTagChange}
+                        input={<OutlinedInput label="Tags" />}
+                        renderValue={(selected) => selected.join(', ')}
+                        MenuProps={MenuProps}
+                        disabled={isDisabled}
+                      >
+                        {tagData.map((item) => (
+                          <MenuItem key={item._id} value={item.tagName}>
+                            <Checkbox checked={formData.tagNames.indexOf(item.tagName) > -1} />
+                            <ListItemText primary={item.tagName} />
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </div>
 
-                    {/* <div>
+                    <div>
                       <div className="label">Lead Status</div>
                       <Dropdown
                         id="LeadStatus"
@@ -665,7 +686,7 @@ function FullLeads() {
                         placeholder="Select lead status"
                         className="p-dropdown"
                       />
-                    </div> */}
+                    </div>
                   </div>
                   <div className="view-edit-btn">
                     <button onClick={isEditing ? handleSave : handleUpdate}>
@@ -693,10 +714,10 @@ function FullLeads() {
                 <div className="follow-ups">
                   {/* Follow-ups list */}
                   {followUps.map((followUp, index) => (
-                    <div key={followUp.id} className="follow-outer">
+                    <div key={followUp._id} className="follow-outer">
                       <div className="follow-body">
                         <div className="follow-body-header">
-                          <div className="followup-srNo">{index + 1}</div>
+                          <div className="followup-srNo">{followUps.length - index}</div>
                           <div >
                             <span className="cratedBy">Created Date-</span> <span className="cratedBy">{followUp.createdAt.split("T")[0]}</span>
                             <div style={{ marginTop: "5px" }}><span className="cratedBy">Created By-</span> <span className="cratedBy">{followUp.followedBy.empName}</span></div>
@@ -704,8 +725,9 @@ function FullLeads() {
                         </div>
                         <div className="follow-ups-txt">
                           <p><b>Message:- </b><span>{followUp.followupMessage}</span></p>
-                         <p><b>Priority:- </b> <span>{followUp.priority}</span></p>
-                         <p><b>followupStatus:- </b> <span>{followUp.followupStatus}</span></p>
+                         {/* <p><b>Priority:- </b> <span>{followUp.priority?.priorityText || "NA"}</span></p>
+                         <p><b>followupStatus:- </b> <span>{followUp.followupStatus?.leadStatusText || "NA"}</span></p> */}
+                         <p><b>Next-FollowUp-Date:- </b> <span>{followUp.followupStatus?.nextFollowupDate || "Not Set"}</span></p>
                         </div>
                       </div>
                       <hr />

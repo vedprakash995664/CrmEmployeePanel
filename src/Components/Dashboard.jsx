@@ -20,7 +20,7 @@ const Dashboard = ({ children, active }) => {
   const toggleSidebar = () => {
     setSidebarActive(!sidebarActive);
   };
-
+  
   const toggleDropdown = () => {
     setDropdownActive(!dropdownActive);
   };

@@ -52,11 +52,6 @@ function Leads() {
     <div>
       <Dashboard active={'lead'}>
         <div className="content">
-          {/* <div className="lead-header">
-            <div className="lead-Add-btn">
-              <button onClick={handleAddNew}>Add New</button>
-            </div>
-          </div> */}
 
           {/* Table Section */}
           <div className="lead-table-container">

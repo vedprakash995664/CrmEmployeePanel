@@ -113,23 +113,44 @@ function DynamicCard({ leadCard, TableTitle }) {
         !searchQuery ||
         lead?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         lead?.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lead?.priority?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lead?.source?.toLowerCase().includes(searchQuery.toLowerCase())
+        lead?.priority?.priorityText.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        lead?.source?.leadSourcesText.toLowerCase().includes(searchQuery.toLowerCase())
       );
     });
     
     // Then filter by selected tags if any
-    if (selectedTagValues.length > 0) {
-      filtered = filtered.filter(item => {
-        if (!item.tags || !Array.isArray(item.tags)) return false;
+    // if (selectedTagValues.length > 0) {
+    //   filtered = filtered.filter(item => {
+    //     if (!item.tags || !Array.isArray(item.tags)) return false;
         
-        // Check if every selected tag is present in the item's tags
-        return selectedTagValues.every(selectedTag =>
-          item.tags.includes(selectedTag)
-        );
-      });
-    }
+    //     return selectedTagValues.every(selectedTag =>
+    //       item.tags.includes(selectedTag)
+    //     );
+    //   });
+    // }
     
+
+     // Then filter by selected tags if any
+     if (selectedTagValues.length > 0) {
+      return filtered.filter(item => {
+          // Check if item has tags and it's an array
+          if (!item.tags || !Array.isArray(item.tags)) return false;
+          
+          // Check if ALL selected tags match the item's tags (instead of ANY)
+          return selectedTagValues.every(selectedTag => {
+              return item.tags.some(tag => {
+                  // Handle both string tags and object tags
+                  if (typeof tag === 'string') {
+                      return tag.toLowerCase() === selectedTag.toLowerCase();
+                  } else if (typeof tag === 'object' && tag !== null) {
+                      return tag.tagName?.toLowerCase() === selectedTag.toLowerCase();
+                  }
+                  return false;
+              });
+          });
+      });
+  }
+
     return filtered;
   };
 
@@ -310,12 +331,12 @@ function DynamicCard({ leadCard, TableTitle }) {
                         <p><span className='card-heading'>Name:- </span><span>{lead.name}</span></p>
                         <p><span className='card-heading'>Mobile:- </span><span>{lead.phone}</span></p>
                         <div className="priority-source">
-                          <p><span className='card-heading'>Priority:- </span><span>{lead.priority}</span></p>
-                          <p><span className='card-heading'>Source:- </span><span>{lead.sources}</span></p>
+                          <p><span className='card-heading'>Priority:- </span><span>{lead.priority?.priorityText}</span></p>
+                          <p><span className='card-heading'>Source:- </span><span>{lead.sources?.leadSourcesText}</span></p>
                         </div>
                         <div className="tags">
                           {lead.tags && Array.isArray(lead.tags) && lead.tags.map((tag, index) => (
-                            <span key={index} className="tag">{tag}</span>
+                            <span key={index} className="tag">{tag.tagName}</span>
                           ))}
                         </div>
                       </div>

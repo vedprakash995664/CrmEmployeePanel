@@ -24,18 +24,19 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
 
     const [priorityOptions, setPriorityOptions] = useState([]);
     const [statusOptions, setStatusOptions] = useState([]);
-
     useEffect(() => {
         dispatch(fetchPriority());
         dispatch(fetchLeadStatus());
     }, [dispatch]);   
+    
     const APi_Url=import.meta.env.VITE_API_URL
+    
     useEffect(() => {
         if (priorityData && Array.isArray(priorityData)) {
             setPriorityOptions(
                 priorityData.map((priority) => ({
                     label: priority.priorityText,
-                    value: priority.priorityText
+                    value: priority._id
                 }))
             );
         }
@@ -46,11 +47,39 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
             setStatusOptions(
                 leadStatus.map((status) => ({
                     label: status.leadStatusText,
-                    value: status.leadStatusText
+                    value: status._id
                 }))
             );
         }
     }, [leadStatus]);
+    
+    // Set default priority based on lead data when modal opens
+    useEffect(() => {
+        if (isOpenNote && leadData && leadData.priority) {
+            // Check if we have the priority ID directly
+            if (leadData.priority._id) {
+                setPriority(leadData.priority._id);
+            } 
+            // If we only have the priority object but not the ID structure
+            else if (typeof leadData.priority === 'string') {
+                setPriority(leadData.priority);
+            }
+        }
+    }, [isOpenNote, leadData]);
+
+    useEffect(() => {
+        if (isOpenNote && leadData && leadData.leadStatus) {
+            // Check if we have the status ID directly
+            if (leadData.leadStatus._id) {
+                setStatus(leadData.leadStatus._id);
+            } 
+            // If we only have the status as a string (like ID)
+            else if (typeof leadData.leadStatus === 'string') {
+                setStatus(leadData.leadStatus);
+            }
+        }
+    }, [isOpenNote, leadData]);
+    
 
     const handleNoteChange = (e) => {
         setMessage(e.target.value);
@@ -93,6 +122,22 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
             const response = await axios.post(`${APi_Url}/digicoder/crm/api/v1/followup/add/${leadData._id}`, data, {
                 headers: { 'Content-Type': 'application/json' },
             });
+            const FormApiData={
+                priority:priority,
+                leadStatus:status
+            }
+            const leadResponse = await axios.put(
+                `${APi_Url}/digicoder/crm/api/v1/lead/update/${leadData._id}`,
+                FormApiData,
+                {
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                }
+              );
+              console.log('====================================')
+              console.log("leadResponse ",leadResponse)
+              console.log('====================================')
 
             console.log('Response from API:', response.data);
 
@@ -134,6 +179,17 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
         setIsScheduled(event.target.checked);
     };
 
+    // Reset form fields when modal is closed
+    useEffect(() => {
+        if (!isOpenNote) {
+            setMessage('');
+            setStatus('');
+            setReminderDate('');
+            setIsScheduled(false);
+            // Don't reset priority here since we want to set it when modal opens
+        }
+    }, [isOpenNote]);
+
     return (
         <>
             <Modal
@@ -170,7 +226,7 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
                                     <option value="">Select</option>
                                     {priorityOptions.map((option, index) => (
                                         <option key={index} value={option.value}>
-                                            {option.value}
+                                            {option.label}
                                         </option>
                                     ))}
                                 </select>
@@ -187,7 +243,7 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
                                     <option value="">Select</option>
                                     {statusOptions.map((option, index) => (
                                         <option key={index} value={option.value}>
-                                            {option.value}
+                                            {option.label}
                                         </option>
                                     ))}
                                 </select>

@@ -279,8 +279,25 @@ export default function DynamicTable({ lead, TableTitle }) {
                             </div>
                         )}
                     ></Column>
-                    <Column field="priority" header="PRIORITY" sortable style={{ width: '15%' }}></Column>
-                    <Column field="sources" header="SOURCES" sortable style={{ width: '15%' }}></Column>
+                    <Column
+                        header="PRIORITY"
+                        body={(rowData) => {
+                            if (!rowData.priority) return "NA";
+                            return rowData.priority.priorityText || "NA";
+                        }}
+                        sortable
+                        style={{ width: '10%', textAlign: "center" }}
+                    />
+
+                    <Column
+                        header="Sources"
+                        body={(rowData) => {
+                            if (!rowData.sources) return "NA";
+                            return rowData.sources.leadSourcesText || "NA";
+                        }}
+                        sortable
+                        style={{ width: '15%' }}
+                    />
                     <Column header="ACTION" body={actionBodyTemplate} style={{ width: '15%' }}></Column>
                 </DataTable>
             )}

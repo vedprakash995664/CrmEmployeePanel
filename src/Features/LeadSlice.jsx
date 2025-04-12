@@ -63,7 +63,7 @@ export const fetchLeads = () => async (dispatch) => {
     // Dispatch filtered leads to the Redux store
     dispatch(setLeads(assignedLead));
   } catch (error) {
-    console.error('Error fetching leads:', error);
+    // console.error('Error fetching leads:', error);
   }
 };
 
@@ -78,7 +78,7 @@ export const fetchTags = () => async (dispatch) => {
     dispatch(setTags(response.data.tags));
     
   } catch (error) {
-    console.error('Error fetching tags:', error);
+    // console.error('Error fetching tags:', error);
   }
 };
 // Thunk to fetch priority data
@@ -90,7 +90,7 @@ export const fetchPriority =() =>async(dispatch) => {
     // console.log('Priority response:', response.data);    
     dispatch(setPriority(response.data.priorities)); 
   } catch (error) {
-    console.error('Error fetching priority data:', error);
+    // console.error('Error fetching priority data:', error);
   }
 };
 // Thunk to fetch priority data
@@ -105,7 +105,7 @@ export const fetchLeadStatus = () => async (dispatch) => {
     // console.log(response.data.leadStatus);
     
   } catch (error) {
-    console.error('Error fetching priority data:', error);
+    // console.error('Error fetching priority data:', error);
   }
 };
 // Thunk to fetch priority data
@@ -117,7 +117,7 @@ export const fetchEmployee = () => async (dispatch) => {
     const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/employee/getall/${addedBy}`);
     dispatch(setEmployee(response.data.employees));
   } catch (error) {
-    console.error('Error fetching Employee data:', error);
+    // console.error('Error fetching Employee data:', error);
   }
 };
 export const fetchSources = () => async (dispatch) => {
@@ -128,7 +128,7 @@ export const fetchSources = () => async (dispatch) => {
     const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/leadSources/getall/${addedBy}`);
     dispatch(setLeadSources(response.data.leadSources));
   } catch (error) {
-    console.error('Error fetching Employee data:', error);
+    // console.error('Error fetching Employee data:', error);
   }
 };
 export const fetchAllFollowUps = () => async (dispatch) => {
@@ -139,7 +139,7 @@ export const fetchAllFollowUps = () => async (dispatch) => {
     // console.log(response.data);
     dispatch(setFollowUps(response.data));
   } catch (error) {
-    console.error('Error fetching FollowUpsData:', error);
+    // console.error('Error fetching FollowUpsData:', error);
   }
 };
 

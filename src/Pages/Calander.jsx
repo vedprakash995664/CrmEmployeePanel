@@ -18,13 +18,13 @@ const LeadCalendar = () => {
   const [selectedDateFollowups, setSelectedDateFollowups] = useState([]);
   const [visible, setVisible] = useState(false); // State to control dialog visibility
   const navigate = useNavigate();
-
+  const APi_Url = import.meta.env.VITE_API_URL
   useEffect(() => {
     const fetchFollowups = async () => {
       try {
         const addedBy = sessionStorage.getItem('employeeId');
         const response = await fetch(
-          `https://crmbackendfile.onrender.com/digicoder/crm/api/v1/followup/getnext/${addedBy}`
+          `${APi_Url}/digicoder/crm/api/v1/followup/getnext/${addedBy}`
         );
 
         if (!response.ok) {
