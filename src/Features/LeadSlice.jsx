@@ -46,8 +46,11 @@ export const { setLeads, setPriority,setLeadStatus,setEmployee ,setLeadSources,s
 export const fetchLeads = () => async (dispatch) => {
   try {
     const APi_Url = import.meta.env.VITE_API_URL;
-    const addedBy = sessionStorage.getItem('addedBy');
-    const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/lead/getall/${addedBy}`);
+    const addedBy = sessionStorage.getItem('employeeId');
+    const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/lead/empgetall/${addedBy}`);
+    console.log('====================================')
+    console.log(response)
+    console.log('====================================')
     const totalLead = response.data.leads;
 
     const employeeId = sessionStorage.getItem("employeeId");
