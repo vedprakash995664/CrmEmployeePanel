@@ -58,7 +58,7 @@ function MainDashboard() {
               <div className="card-icon"><FaCalendarCheck /></div>
               <div className="card-content">
                 <h4>Total Leads</h4>
-                <h1>{totalLeads?.length || 0}</h1> {/* Display total leads */}
+                <h1>{(totalLeads.length > 0) ?  totalLeads?.length : <div className="circle-loader"></div>}</h1> {/* Display total leads */}
               </div>
             </div>
 
@@ -66,7 +66,7 @@ function MainDashboard() {
               <div className="card-icon"><FaUserTimes /></div>
               <div className="card-content">
                 <h4>Missed Leads</h4>
-                <h1>{missedLeads?.length || 0}</h1>
+                <h1>{(totalLeads.length > 0) ?  missedLeads?.length : <div className="circle-loader"></div>}</h1>
               </div>
             </div>
 
@@ -74,7 +74,7 @@ function MainDashboard() {
               <div className="card-icon"><FaBell /></div> {/* Changed icon to a bell */}
               <div className="card-content">
                 <h4>Today Reminders</h4>
-                <h1>{todayFollowUps?.length || 0}</h1> {/* Display reminders (today's follow-ups) */}
+                <h1>{(totalLeads.length > 0) ?  todayFollowUps?.length : <div className="circle-loader"></div>}</h1> {/* Display reminders (today's follow-ups) */}
               </div>
             </div>
 
@@ -83,7 +83,7 @@ function MainDashboard() {
               
               <div className="card-content">
                 <h4>Negative Leads</h4>
-                <h1>{negativeLeads?.length || 0}</h1>
+                <h1>{(totalLeads.length > 0) ? negativeLeads?.length : <div className="circle-loader"></div>}</h1>
               </div>
             </div>
           </div>
