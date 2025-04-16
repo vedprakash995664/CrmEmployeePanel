@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './CSS/DynamicCard.css';
 import FollowUpNotes from './FollowUpNotes';
 import Modal from './LeadForm';
@@ -17,11 +17,13 @@ function DynamicCard({ leadCard, TableTitle }) {
   const [buttonTitle, setButtonTitle] = useState('');
   const [leadData, setLeadData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [loading, setLoading] = useState(true);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [tagSearchQuery, setTagSearchQuery] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const tagData = useSelector((state) => state.leads.tag);
@@ -32,12 +34,16 @@ function DynamicCard({ leadCard, TableTitle }) {
     return savedTags ? JSON.parse(savedTags) : [];
   });
 
-  const tagsOptions = tagData.map((tag) => ({ name: tag.tagName, value: tag.tagName }));
-
-  // Save selected tags to localStorage whenever they change
+  // Debounce search input
   useEffect(() => {
-    localStorage.setItem('selectedTagFilters', JSON.stringify(selectedTagValues));
-  }, [selectedTagValues]);
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
 
   // Fetch tags when component mounts
   useEffect(() => {
@@ -53,12 +59,24 @@ function DynamicCard({ leadCard, TableTitle }) {
   // Update selected rows when select all changes or filtered leads change
   useEffect(() => {
     if (selectAll) {
-      setSelectedRows([...getFilteredLeads()]);
+      setSelectedRows([...filteredLeads]);
     } else {
-      // If user unchecks "select all", clear all selections
       setSelectedRows([]);
     }
-  }, [selectAll, searchQuery, selectedTagValues]);
+  }, [selectAll, debouncedSearchQuery, selectedTagValues]);
+
+  // Save selected tags to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('selectedTagFilters', JSON.stringify(selectedTagValues));
+  }, [selectedTagValues]);
+
+  const tagsOptions = useMemo(() => {
+    return tagData
+      .filter(tag => 
+        tag.tagName.toLowerCase().includes(tagSearchQuery.toLowerCase())
+      )
+      .map(tag => ({ name: tag.tagName, value: tag.tagName }));
+  }, [tagData, tagSearchQuery]);
 
   const openModal = (isEdit) => {
     setEditMode(isEdit);
@@ -96,53 +114,50 @@ function DynamicCard({ leadCard, TableTitle }) {
     setCurrentPage(1);
   };
 
+  const handleTagSearchChange = (event) => {
+    setTagSearchQuery(event.target.value);
+  };
+
   // Function to clear all filters
   const clearAllFilters = () => {
     setSelectedTagValues([]);
     setSearchQuery('');
+    setTagSearchQuery('');
     setCurrentPage(1);
   };
 
-  // Combined filtering function for both search query and tags
-  const getFilteredLeads = () => {
+  // Combined filtering function with memoization
+  const filteredLeads = useMemo(() => {
     if (!leadCard) return [];
 
     // First filter by search query
     let filtered = leadCard.filter((lead) => {
+      const searchLower = debouncedSearchQuery.toLowerCase();
       return (
-        !searchQuery ||
-        lead?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lead?.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lead?.priority?.priorityText.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        lead?.source?.leadSourcesText.toLowerCase().includes(searchQuery.toLowerCase())
+        !debouncedSearchQuery ||
+        lead?.name?.toLowerCase().includes(searchLower) ||
+        lead?.phone?.toLowerCase().includes(searchLower) ||
+        lead?.priority?.priorityText?.toLowerCase().includes(searchLower) ||
+        lead?.source?.leadSourcesText?.toLowerCase().includes(searchLower)
       );
     });
 
     // Then filter by selected tags if any
     if (selectedTagValues.length > 0) {
-      return filtered.filter(item => {
-        // Check if item has tags and it's an array
+      filtered = filtered.filter(item => {
         if (!item.tags || !Array.isArray(item.tags)) return false;
-
-        // Check if ALL selected tags match the item's tags (instead of ANY)
-        return selectedTagValues.every(selectedTag => {
+        
+        return selectedTagValues.some(selectedTag => {
           return item.tags.some(tag => {
-            // Handle both string tags and object tags
-            if (typeof tag === 'string') {
-              return tag.toLowerCase() === selectedTag.toLowerCase();
-            } else if (typeof tag === 'object' && tag !== null) {
-              return tag.tagName?.toLowerCase() === selectedTag.toLowerCase();
-            }
-            return false;
+            const tagName = typeof tag === 'string' ? tag : tag?.tagName;
+            return tagName?.toLowerCase() === selectedTag.toLowerCase();
           });
         });
       });
     }
 
     return filtered;
-  };
-
-  const filteredLeads = getFilteredLeads();
+  }, [leadCard, debouncedSearchQuery, selectedTagValues]);
 
   // Pagination logic
   const indexOfLastLead = currentPage * itemsPerPage;
@@ -154,17 +169,8 @@ function DynamicCard({ leadCard, TableTitle }) {
     setCurrentPage(pageNumber);
   };
 
-  // Custom header template for MultiSelect with working search functionality
+  // Custom header template for MultiSelect
   const panelHeaderTemplate = (options) => {
-    const { closeCallback, filterCallback } = options;
-    
-    // Handle tag search input changes
-    const onFilterChange = (e) => {
-      if (filterCallback) {
-        filterCallback(e.target.value);
-      }
-    };
-    
     return (
       <div>
         <div className="panelHeaderTemplate">
@@ -193,7 +199,9 @@ function DynamicCard({ leadCard, TableTitle }) {
             type="text" 
             className="w-full p-2 border border-gray-300 rounded" 
             placeholder="Search tags..."
-            onInput={onFilterChange}
+            value={tagSearchQuery}
+            onChange={handleTagSearchChange}
+            onClick={(e) => e.stopPropagation()}
           />
         </div>
       </div>
@@ -205,6 +213,7 @@ function DynamicCard({ leadCard, TableTitle }) {
       <div className="custom-filter-container">
         <div className="custom-filter-box">
           <MultiSelect
+            
             value={selectedTagValues}
             options={tagsOptions}
             optionLabel="name"
@@ -218,8 +227,18 @@ function DynamicCard({ leadCard, TableTitle }) {
             className="custom-input custom-multiselect"
             panelStyle={{ width: "250px" }}
             panelHeaderTemplate={panelHeaderTemplate}
+            // panelHeaderTemplate={""}
             scrollHeight="200px"
             display="chip"
+            itemTemplate={(option) => {
+              // Custom template for each option in the dropdown
+              return (
+                <div className="custom-option-item">
+                  <span className="option-label">{option.name}</span>
+                  <span className="option-badge">{option.count || 0}</span>
+                </div>
+              );
+            }}
           />
           {selectedTagValues.length > 0 && (
             <button className="clear-btn" onClick={clearAllFilters}>
@@ -258,7 +277,6 @@ function DynamicCard({ leadCard, TableTitle }) {
               const serialNumber = indexOfFirstLead + index + 1;
               return (
                 <div key={index} className="Dynamic-card">
-                  {/* Serial Number Display */}
                   <strong style={{ float: 'right' }}>#{serialNumber}</strong>
                   <div className="dynamic-card-details-body">
                     <div className="dynamic-card-details">
@@ -271,7 +289,9 @@ function DynamicCard({ leadCard, TableTitle }) {
                         </div>
                         <div className="tags">
                           {lead.tags && Array.isArray(lead.tags) && lead.tags.map((tag, index) => (
-                            <span key={index} className="tag">{tag.tagName}</span>
+                            <span key={index} className="tag">
+                              {typeof tag === 'string' ? tag : tag.tagName}
+                            </span>
                           ))}
                         </div>
                       </div>
@@ -330,8 +350,7 @@ function DynamicCard({ leadCard, TableTitle }) {
 
                       <div className="call-icon-wrapper">
                         <a
-                          href={`https://wa.me/${lead.phone.startsWith('+91') ? lead.phone.replace(/\D/g, '') : '91' + lead.phone.replace(/\D/g, '')
-                            }`}
+                          href={`https://wa.me/${lead.phone.startsWith('+91') ? lead.phone.replace(/\D/g, '') : '91' + lead.phone.replace(/\D/g, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{ textDecoration: 'none' }}

@@ -39,8 +39,12 @@
   .custom-input {
     width: 100%;
     height: 45px;
-    padding: 8px 38px 8px 12px;
-    font-size: 14px;
+    /* padding: 0px 38px 8px 12px; */
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 30px 0 0;
+    font-size: 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
     background: #fff;
@@ -55,7 +59,7 @@
     transform: translateY(-50%);
     background: transparent;
     border: none;
-    font-size: 16px;
+    font-size: 20px;
     color: #888;
     cursor: pointer;
   }
@@ -75,131 +79,35 @@
     align-items: center;
     justify-content: space-between;
   }
- /* Make tags horizontally scrollable with smaller font */
-.custom-multiselect .p-multiselect-token {
-  font-size: 2px !important; /* Smaller font size for tags */
-  padding: 4px 8px !important; /* Smaller padding for tags */
-  margin-right: 4px !important;
-  white-space: nowrap;
-}
-
-.custom-multiselect .p-multiselect-token-label {
-  font-size: 5px !important;
-}
-
-/* Add horizontal scrolling to the tags container */
-.custom-multiselect .p-multiselect-multiple-container {
-  display: flex;
-  overflow-x: auto;
-  flex-wrap: nowrap !important; /* Prevent wrapping to new line */
-  padding-bottom: 4px; /* Space for scrollbar */
-  scrollbar-width: thin;
-}
-
-/* Customize scrollbar for webkit browsers */
-.custom-multiselect .p-multiselect-multiple-container::-webkit-scrollbar {
-  height: 4px;
-}
-
-.custom-multiselect .p-multiselect-multiple-container::-webkit-scrollbar-thumb {
-  background-color: #c1c1c1;
-  border-radius: 4px;
-}
-
-/* Ensure the dropdown panel doesn't inherit the horizontal scroll styling */
-.p-multiselect-panel .p-multiselect-items {
-  flex-wrap: wrap !important;
-}
-
-/* Add this to your CSS/DynamicCard.css file */
-
-.custom-filter-container {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-  margin-bottom: 15px;
-}
-
-.custom-filter-box {
-  position: relative;
-  flex: 1;
-  min-width: 200px;
-}
-
-.custom-input {
-  width: 100%;
-  padding: 8px 30px 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.clear-btn {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #666;
-}
-
-.clear-btn:hover {
-  color: #333;
-}
-
-/* Make tags horizontally scrollable with smaller font */
-.custom-multiselect .p-multiselect-token {
-  font-size: 12px !important; /* Smaller font size for tags */
-  padding: 2px 6px !important; /* Even smaller padding for tags */
-  margin-right: 4px !important;
-  white-space: nowrap;
-}
-
-.custom-multiselect .p-multiselect-token-label {
-  font-size: 12px !important;
-}
-
-/* Add horizontal scrolling to the tags container */
-.custom-multiselect .p-multiselect-multiple-container {
-  display: flex;
-  overflow-x: auto;
-  flex-wrap: nowrap !important; /* Prevent wrapping to new line */
-  padding-bottom: 4px; /* Space for scrollbar */
-  scrollbar-width: thin;
-  max-width: 100%;
-}
-
-/* Customize scrollbar for webkit browsers */
-.custom-multiselect .p-multiselect-multiple-container::-webkit-scrollbar {
-  height: 3px;
-}
-
-.custom-multiselect .p-multiselect-multiple-container::-webkit-scrollbar-thumb {
-  background-color: #c1c1c1;
-  border-radius: 4px;
-}
-
-/* Panel header styling */
-.panelHeaderTemplate {
+  
+  /* For styling the dropdown options */
+.custom-option-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s;
+  border-radius: 4px;
+  margin: 2px 0;
 }
 
-/* Make the search input in panel more visually appealing */
-.p-multiselect-panel .p-2 input {
+.custom-option-item:hover {
+  background-color: #f5f5f5;
+}
+
+.option-label {
   font-size: 13px;
-  transition: all 0.2s;
 }
 
-.p-multiselect-panel .p-2 input:focus {
-  outline: none;
-  border-color: #3454D1;
+.option-badge {
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #555;
 }
 
-/* Ensure existing styles aren't overridden */
-/* The rest of your existing DynamicCard.css styles would remain unchanged */
+/* Style the selected options differently */
+.p-highlight .custom-option-item {
+  background-color: #e6f7ff;
+}
