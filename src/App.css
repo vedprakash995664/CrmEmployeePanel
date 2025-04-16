@@ -12,3 +12,194 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+
+
+
+  .custom-filter-container {
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: center;
+    justify-content:center;
+  }
+  
+  .custom-filter-box MultiSelect{
+    overflow: auto;
+  }
+
+  .custom-filter-box {
+    position: relative;
+    /* flex: 1 1 280px; */
+    min-width: 250px;
+    max-width: 100%;
+  }
+  
+  .custom-input {
+    width: 100%;
+    height: 45px;
+    padding: 8px 38px 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-sizing: border-box;
+  }
+  
+  .clear-btn {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    color: #888;
+    cursor: pointer;
+  }
+  
+  /* Mobile styling */
+  @media (max-width: 768px) {  
+    .custom-filter-box {
+      font-size:5px !important;
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+  
+  .panelHeaderTemplate{
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+ /* Make tags horizontally scrollable with smaller font */
+.custom-multiselect .p-multiselect-token {
+  font-size: 2px !important; /* Smaller font size for tags */
+  padding: 4px 8px !important; /* Smaller padding for tags */
+  margin-right: 4px !important;
+  white-space: nowrap;
+}
+
+.custom-multiselect .p-multiselect-token-label {
+  font-size: 5px !important;
+}
+
+/* Add horizontal scrolling to the tags container */
+.custom-multiselect .p-multiselect-multiple-container {
+  display: flex;
+  overflow-x: auto;
+  flex-wrap: nowrap !important; /* Prevent wrapping to new line */
+  padding-bottom: 4px; /* Space for scrollbar */
+  scrollbar-width: thin;
+}
+
+/* Customize scrollbar for webkit browsers */
+.custom-multiselect .p-multiselect-multiple-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.custom-multiselect .p-multiselect-multiple-container::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+
+/* Ensure the dropdown panel doesn't inherit the horizontal scroll styling */
+.p-multiselect-panel .p-multiselect-items {
+  flex-wrap: wrap !important;
+}
+
+/* Add this to your CSS/DynamicCard.css file */
+
+.custom-filter-container {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.custom-filter-box {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.custom-input {
+  width: 100%;
+  padding: 8px 30px 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+}
+
+.clear-btn:hover {
+  color: #333;
+}
+
+/* Make tags horizontally scrollable with smaller font */
+.custom-multiselect .p-multiselect-token {
+  font-size: 12px !important; /* Smaller font size for tags */
+  padding: 2px 6px !important; /* Even smaller padding for tags */
+  margin-right: 4px !important;
+  white-space: nowrap;
+}
+
+.custom-multiselect .p-multiselect-token-label {
+  font-size: 12px !important;
+}
+
+/* Add horizontal scrolling to the tags container */
+.custom-multiselect .p-multiselect-multiple-container {
+  display: flex;
+  overflow-x: auto;
+  flex-wrap: nowrap !important; /* Prevent wrapping to new line */
+  padding-bottom: 4px; /* Space for scrollbar */
+  scrollbar-width: thin;
+  max-width: 100%;
+}
+
+/* Customize scrollbar for webkit browsers */
+.custom-multiselect .p-multiselect-multiple-container::-webkit-scrollbar {
+  height: 3px;
+}
+
+.custom-multiselect .p-multiselect-multiple-container::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+
+/* Panel header styling */
+.panelHeaderTemplate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Make the search input in panel more visually appealing */
+.p-multiselect-panel .p-2 input {
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.p-multiselect-panel .p-2 input:focus {
+  outline: none;
+  border-color: #3454D1;
+}
+
+/* Ensure existing styles aren't overridden */
+/* The rest of your existing DynamicCard.css styles would remain unchanged */

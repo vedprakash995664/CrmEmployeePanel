@@ -119,18 +119,6 @@ function DynamicCard({ leadCard, TableTitle }) {
     });
 
     // Then filter by selected tags if any
-    // if (selectedTagValues.length > 0) {
-    //   filtered = filtered.filter(item => {
-    //     if (!item.tags || !Array.isArray(item.tags)) return false;
-
-    //     return selectedTagValues.every(selectedTag =>
-    //       item.tags.includes(selectedTag)
-    //     );
-    //   });
-    // }
-
-
-    // Then filter by selected tags if any
     if (selectedTagValues.length > 0) {
       return filtered.filter(item => {
         // Check if item has tags and it's an array
@@ -166,37 +154,56 @@ function DynamicCard({ leadCard, TableTitle }) {
     setCurrentPage(pageNumber);
   };
 
-  // Custom header template for MultiSelect
-  const panelHeaderTemplate = () => {
+  // Custom header template for MultiSelect with working search functionality
+  const panelHeaderTemplate = (options) => {
+    const { closeCallback, filterCallback } = options;
+    
+    // Handle tag search input changes
+    const onFilterChange = (e) => {
+      if (filterCallback) {
+        filterCallback(e.target.value);
+      }
+    };
+    
     return (
-      <div className="p-2 flex justify-between items-center">
-        <span className="font-bold">Tag Filters</span>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            clearAllFilters();
-          }}
-          className="clear-all-btn"
-          style={{
-            backgroundColor: '#f44336',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            padding: '4px 8px',
-            fontSize: '12px',
-            cursor: 'pointer'
-          }}
-        >
-          Clear All
-        </button>
+      <div>
+        <div className="panelHeaderTemplate">
+          <span className="font-bold">Tag Filters</span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              clearAllFilters();
+            }}
+            className="clear-all-btn"
+            style={{
+              backgroundColor: '#f44336',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              padding: '4px 8px',
+              fontSize: '20px',
+              cursor: 'pointer'
+            }}
+          >
+            <i className="ri-close-circle-line"></i>
+          </button>
+        </div>
+        <div className="p-2 flex justify-between items-center">
+          <input 
+            type="text" 
+            className="w-full p-2 border border-gray-300 rounded" 
+            placeholder="Search tags..."
+            onInput={onFilterChange}
+          />
+        </div>
       </div>
     );
   };
 
   return (
     <div className="dynamic-card-outer">
-      <div className="filter-container" style={{ display: 'flex', marginBottom: '10px' }}>
-        <div style={{ position: 'relative', marginRight: '10px' }}>
+      <div className="custom-filter-container">
+        <div className="custom-filter-box">
           <MultiSelect
             value={selectedTagValues}
             options={tagsOptions}
@@ -208,109 +215,37 @@ function DynamicCard({ leadCard, TableTitle }) {
             }}
             filter
             placeholder="Filter by Tags"
-            style={{ width: "100%", maxWidth: "150px", height: "45px" }}
+            className="custom-input custom-multiselect"
             panelStyle={{ width: "250px" }}
             panelHeaderTemplate={panelHeaderTemplate}
+            scrollHeight="200px"
+            display="chip"
           />
-
           {selectedTagValues.length > 0 && (
-            <div style={{
-              position: 'absolute',
-              right: '5px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              cursor: 'pointer',
-              zIndex: 1
-            }}>
-              <button
-                onClick={clearAllFilters}
-                style={{
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  fontSize: '12px',
-                  color: '#888',
-                  cursor: 'pointer'
-                }}
-              >
-                <i className="ri-close-circle-line"></i>
-              </button>
-            </div>
+            <button className="clear-btn" onClick={clearAllFilters}>
+              <i className="ri-close-circle-line"></i>
+            </button>
           )}
         </div>
 
-        <div className="dynamic-search-box">
+        <div className="custom-filter-box">
           <input
             type="text"
             placeholder="Search by Name, Phone, Priority or Source..."
             value={searchQuery}
             onChange={handleSearchChange}
-            className="search-input"
+            className="custom-input"
           />
           {searchQuery && (
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setCurrentPage(1);
-              }}
-              style={{
-                position: 'absolute',
-                right: '10px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '14px',
-                color: '#888'
-              }}
-            >
+            <button className="clear-btn" onClick={() => {
+              setSearchQuery('');
+              setCurrentPage(1);
+            }}>
               <i className="ri-close-circle-line"></i>
             </button>
           )}
         </div>
       </div>
-
-      {/* Active filters display */}
-      {/* {selectedTagValues.length > 0 && (
-        <div className="active-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '10px' }}>
-          <span style={{ fontSize: '12px', color: '#666' }}>Active filters:</span>
-          {selectedTagValues.map((tag, index) => (
-            <span 
-              key={index} 
-              style={{
-                backgroundColor: '#f1f1f1',
-                padding: '2px 8px',
-                borderRadius: '12px',
-                fontSize: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px'
-              }}
-            >
-              {tag}
-              <i 
-                className="ri-close-line" 
-                style={{ cursor: 'pointer', fontSize: '12px' }}
-                onClick={() => {
-                  const newTags = selectedTagValues.filter(t => t !== tag);
-                  setSelectedTagValues(newTags);
-                }}
-              ></i>
-            </span>
-          ))}
-          <span 
-            style={{ 
-              fontSize: '12px', 
-              color: '#3454D1', 
-              cursor: 'pointer',
-              textDecoration: 'underline'
-            }}
-            onClick={clearAllFilters}
-          >
-            Clear all
-          </span>
-        </div>
-      )} */}
 
       {loading ? (
         <div className="loader-container">
