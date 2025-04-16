@@ -168,7 +168,6 @@ function DynamicCard({ leadCard, TableTitle }) {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
   // Custom header template for MultiSelect
   const panelHeaderTemplate = (options) => {
     return (
@@ -225,7 +224,7 @@ function DynamicCard({ leadCard, TableTitle }) {
             filter
             placeholder="Filter by Tags"
             className="custom-input custom-multiselect"
-            panelStyle={{ width: "250px" }}
+            panelStyle={{ width: "200px" }}
             panelHeaderTemplate={panelHeaderTemplate}
             // panelHeaderTemplate={""}
             scrollHeight="200px"
@@ -235,7 +234,6 @@ function DynamicCard({ leadCard, TableTitle }) {
               return (
                 <div className="custom-option-item">
                   <span className="option-label">{option.name}</span>
-                  <span className="option-badge">{option.count || 0}</span>
                 </div>
               );
             }}
@@ -253,7 +251,7 @@ function DynamicCard({ leadCard, TableTitle }) {
             placeholder="Search by Name, Phone, Priority or Source..."
             value={searchQuery}
             onChange={handleSearchChange}
-            className="custom-input"
+            className="custom-input custom-search-input"
           />
           {searchQuery && (
             <button className="clear-btn" onClick={() => {
