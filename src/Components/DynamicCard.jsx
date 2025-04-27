@@ -146,6 +146,8 @@ function DynamicCard({ leadCard, TableTitle }) {
   };
 
   // Combined filtering function with memoization
+
+  // ne  
   const filteredLeads = useMemo(() => {
     if (!leadCard) return [];
   
