@@ -8,18 +8,6 @@
     width: 90vw;
   }
 }
-.leadform-modal-overlay {
-  background-color: rgba(0, 0, 0, 0.5); /* Transparent background for overlay */
-}
-
-.leadform-modal-content {
-  width: 200%;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-}
-
 /* Optional: Form styling for spacing */
 .p-field label {
   font-weight: bold;
@@ -33,6 +21,20 @@
   margin-bottom: 1.5rem;
 }
 
+@media screen and (max-width: 768px) {
+  .p-multiselect.multiselect-responsive {
+    width: 100% !important;
+  }
+
+  .p-multiselect-panel {
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+
+  .p-dialog.leadFormOuter {
+    width: 90vw !important;
+  }
+}
 /* Make form fields stack vertically on mobile */
 @media (max-width: 768px) {
   .p-grid {

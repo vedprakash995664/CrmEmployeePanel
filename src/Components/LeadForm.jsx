@@ -207,7 +207,7 @@ const LeadForm = ({ isOpen, onClose, title, buttonTitle, leadData }) => {
               id="tags"
               value={selectedTagValues}
               options={tagsOptions}
-              onChange={(e) => {
+              onChange={(e) => {  
                 setSelectedTagValues(e.value);
                 setSelectAll(false);
               }}

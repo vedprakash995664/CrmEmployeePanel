@@ -42,28 +42,16 @@ const leadsSlice = createSlice({
 
 export const { setLeads, setPriority,setLeadStatus,setEmployee ,setLeadSources,setFollowUps,setTags} = leadsSlice.actions;
 
-// Thunk to fetch leads data
 export const fetchLeads = () => async (dispatch) => {
   try {
     const APi_Url = import.meta.env.VITE_API_URL;
-    const addedBy = sessionStorage.getItem('employeeId');
-    const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/lead/empgetall/${addedBy}`);
-    const totalLead = response.data.leads;
+    const employeeId = sessionStorage.getItem('employeeId');
 
-    const employeeId = sessionStorage.getItem("employeeId");
-
-    // Filter out leads where 'leadAssignedTo' is not null/undefined and contains the current employeeId
-    const assignedLead = totalLead.filter((item) => {
-      if (item.leadAssignedTo) {
-        // Check if employeeId exists within the leadAssignedTo array
-        return item.leadAssignedTo.some((assigned) => assigned._id === employeeId);
-      }
-      return false;
-    });
-    // Dispatch filtered leads to the Redux store
-    dispatch(setLeads(assignedLead));
+    const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/lead/empgetall/${employeeId}`);
+    const leads = response.data.leads;
+    dispatch(setLeads(leads));
   } catch (error) {
-    // console.error('Error fetching leads:', error);
+    console.error('Error fetching leads:', error);
   }
 };
 

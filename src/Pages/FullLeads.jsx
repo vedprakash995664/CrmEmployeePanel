@@ -25,6 +25,7 @@ function FullLeads() {
   const [unCloseActionBtn, setUnCloseActionBtn] = useState(false)
   const [unNegativeActionBtn, setUnNegativeActionBtn] = useState(false)
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingFollowUps, setIsLoadingFollowUps] = useState(true);
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_BOTTOM = 10;
 
@@ -45,8 +46,6 @@ function FullLeads() {
     },
   };
 
-
-
   const handleTagChange = (event) => {
     const { value } = event.target;
     const selectedTagIds = tagData
@@ -59,15 +58,6 @@ function FullLeads() {
       tags: selectedTagIds
     }));
   };
-
-  // const handleTagChange = (event) => {
-  //   const { value } = event.target;
-  //   setSelectedTags(value);
-  //   setFormData(prevData => ({
-  //     ...prevData,
-  //     tags: value
-  //   }));
-  // };
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -91,14 +81,15 @@ function FullLeads() {
     tags: Array.isArray(viewdata?.tags)
     ? viewdata.tags.map(tag => tag._id)
     : viewdata?.tags?._id ? [viewdata.tags._id] : [],
-  tagNames: Array.isArray(viewdata?.tags)
-    ? viewdata.tags.map(tag => tag.tagName)
-    : viewdata?.tags?.tagName ? [viewdata.tags.tagName] : [],
+    tagNames: Array.isArray(viewdata?.tags)
+      ? viewdata.tags.map(tag => tag.tagName)
+      : viewdata?.tags?.tagName ? [viewdata.tags.tagName] : [],
     LeadStatus: viewdata.leadStatus?._id || "",
   });
 
   const FormApiData = {
     name: formData.Name,
+    phone:formData.Phone,
     email: formData.Email,
     gender: formData.Gender,
     dob: formData.DateOfBirth,
@@ -212,6 +203,7 @@ function FullLeads() {
 
   const [followUps, setFollowUps] = useState([]);
   const fetchFollowUps = async () => {
+    setIsLoadingFollowUps(true); // Set loading to true before fetching
     try {
       const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/followup/getall/${viewdata._id}`);
       if (response.status === 200) {
@@ -220,6 +212,8 @@ function FullLeads() {
     } catch (error) {
       console.error("Error fetching follow-up data:", error);
       toast.error("Error fetching follow-up data. Please try again.");
+    } finally {
+      setIsLoadingFollowUps(false); // Set loading to false after fetching
     }
   };
 
@@ -520,12 +514,12 @@ function FullLeads() {
                     <div>
                       <div className="label">Phone Number</div>
                       <input
-                        type="number"
+                        type="text"
                         className="input-field"
                         name="Phone"
                         value={formData.Phone}
                         onChange={handleChange}
-                        disabled
+                        disabled={isDisabled}
                       />
                     </div>
                     <div>
@@ -712,28 +706,62 @@ function FullLeads() {
                 </div>
 
                 <div className="follow-ups">
-                  {/* Follow-ups list */}
-                  {followUps.map((followUp, index) => (
-                    <div key={followUp._id} className="follow-outer">
-                      <div className="follow-body">
-                        <div className="follow-body-header">
-                          <div className="followup-srNo">{followUps.length - index}</div>
-                          <div >
-                            <span className="cratedBy">Created Date-</span> <span className="cratedBy">{followUp.createdAt.split("T")[0]}</span>
-                            <div style={{ marginTop: "5px" }}><span className="cratedBy">Created By-</span> <span className="cratedBy">{followUp.followedBy.empName}</span></div>
+                  {/* Show loader when loading */}
+                  {isLoadingFollowUps ? (
+                    <div className="loader-container" style={{ textAlign: 'center', padding: '20px' }}>
+                      <div className="loader" style={{ 
+                        border: '4px solid #f3f3f3',
+                        borderTop: '4px solid #3498db',
+                        borderRadius: '50%',
+                        width: '40px',
+                        height: '40px',
+                        animation: 'spin 2s linear infinite',
+                        margin: '0 auto'
+                      }}></div>
+                      <p style={{ marginTop: '10px' }}>Loading follow-ups...</p>
+                      <style>{`
+                        @keyframes spin {
+                          0% { transform: rotate(0deg); }
+                          100% { transform: rotate(360deg); }
+                        }
+                      `}</style>
+                    </div>
+                  ) : followUps.length > 0 ? (
+                    /* Display follow-ups if available */
+                    followUps.map((followUp, index) => (
+                      <div key={followUp._id} className="follow-outer">
+                        <div className="follow-body">
+                          <div className="follow-body-header">
+                            <div className="followup-srNo">{followUps.length - index}</div>
+                            <div>
+                              <span className="cratedBy">Created Date-</span> <span className="cratedBy">{followUp.createdAt.split("T")[0]}</span>
+                              <div style={{ marginTop: "5px" }}><span className="cratedBy">Created By-</span> <span className="cratedBy">{followUp.followedBy.empName}</span></div>
+                            </div>
+                          </div>
+                          <div className="follow-ups-txt">
+                            <p><b>Message:- </b><span>{followUp.followupMessage}</span></p>
+                            <p><b>Next-FollowUp-Date:- </b> <span>{followUp.followupStatus?.nextFollowupDate || "Not Set"}</span></p>
                           </div>
                         </div>
-                        <div className="follow-ups-txt">
-                          <p><b>Message:- </b><span>{followUp.followupMessage}</span></p>
-                         {/* <p><b>Priority:- </b> <span>{followUp.priority?.priorityText || "NA"}</span></p>
-                         <p><b>followupStatus:- </b> <span>{followUp.followupStatus?.leadStatusText || "NA"}</span></p> */}
-                         <p><b>Next-FollowUp-Date:- </b> <span>{followUp.followupStatus?.nextFollowupDate || "Not Set"}</span></p>
-                        </div>
+                        <hr />
                       </div>
-                      <hr />
+                    ))
+                  ) : (
+                    /* Show message when no follow-ups are found */
+                    <div className="no-followups" style={{ 
+                      textAlign: 'center', 
+                      padding: '30px', 
+                      backgroundColor: '#f9f9f9', 
+                      borderRadius: '8px',
+                      margin: '20px 0'
+                    }}>
+                      <i className="ri-information-line" style={{ fontSize: '30px', color: '#999', marginBottom: '10px' }}></i>
+                      <p style={{ fontSize: '16px', color: '#666' }}>No follow-ups found for this lead.</p>
+                      <p style={{ fontSize: '14px', color: '#999', marginTop: '5px' }}>Click on "Add New" to create your first follow-up.</p>
                     </div>
-                  ))}
+                  )}
                 </div>
+
                 {actionBtn && (
                   <div className="lead-action-btn">
                     <button className="negative-btn" onClick={() => handleMarkNegative()}>Mark as Negative</button>

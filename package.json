@@ -16,6 +16,8 @@
     "@coreui/react-pro": "^5.12.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mui/material": "^7.0.2",
+    "@mui/styled-engine-sc": "^7.0.2",
     "@mui/x-charts": "^7.23.2",
     "@reduxjs/toolkit": "^2.5.1",
     "aos": "^2.3.4",
@@ -38,7 +40,9 @@
     "react-spinners": "^0.15.0",
     "react-tagsinput": "^3.20.3",
     "react-toastify": "^11.0.2",
-    "sweetalert2": "^11.15.10"
+    "styled-components": "^6.1.17",
+    "sweetalert2": "^11.15.10",
+    "timeago.js": "^4.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

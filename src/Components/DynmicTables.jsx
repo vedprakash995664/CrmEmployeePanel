@@ -188,7 +188,7 @@ export default function DynamicTable({ lead, TableTitle }) {
                 >
                     <Column
                         header="SR No."
-                        body={(rowData, { rowIndex }) => rowIndex + 1 + first}
+                        body={(rowData, { rowIndex }) => rowIndex + 1}
                         style={{ width: '10%', padding: '0px 0px 0px 20px' }}
                     ></Column>
                     <Column field="name" header="NAME" sortable style={{ width: '25%' }}></Column>

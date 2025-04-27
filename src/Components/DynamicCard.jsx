@@ -2,14 +2,16 @@ import React, { useState, useEffect, useMemo } from 'react';
 import './CSS/DynamicCard.css';
 import FollowUpNotes from './FollowUpNotes';
 import Modal from './LeadForm';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MultiSelect } from 'primereact/multiselect';
 import { ClipLoader } from 'react-spinners';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchTags } from '../Features/LeadSlice';
+import { format } from 'timeago.js';
 
 function DynamicCard({ leadCard, TableTitle }) {
   const API_Url = import.meta.env.VITE_API_URL;
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [title, setTitle] = useState('');
@@ -18,7 +20,6 @@ function DynamicCard({ leadCard, TableTitle }) {
   const [leadData, setLeadData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [loading, setLoading] = useState(true);
   const [selectAll, setSelectAll] = useState(false);
@@ -28,11 +29,29 @@ function DynamicCard({ leadCard, TableTitle }) {
   const dispatch = useDispatch();
   const tagData = useSelector((state) => state.leads.tag);
 
+  // Initialize currentPage from URL param or localStorage, defaulting to 1 if neither exists
+  const [currentPage, setCurrentPage] = useState(() => {
+    const pageFromUrl = parseInt(searchParams.get('page'));
+    if (pageFromUrl && !isNaN(pageFromUrl)) {
+      return pageFromUrl;
+    }
+    
+    const savedPage = localStorage.getItem('currentLeadPage');
+    return savedPage ? parseInt(savedPage) : 1;
+  });
+
   // Get stored tags from localStorage or default to empty array
   const [selectedTagValues, setSelectedTagValues] = useState(() => {
     const savedTags = localStorage.getItem('selectedTagFilters');
     return savedTags ? JSON.parse(savedTags) : [];
   });
+
+  // Update URL and localStorage when page changes
+  useEffect(() => {
+    searchParams.set('page', currentPage.toString());
+    setSearchParams(searchParams);
+    localStorage.setItem('currentLeadPage', currentPage.toString());
+  }, [currentPage, setSearchParams, searchParams]);
 
   // Debounce search input
   useEffect(() => {
@@ -72,7 +91,7 @@ function DynamicCard({ leadCard, TableTitle }) {
 
   const tagsOptions = useMemo(() => {
     return tagData
-      .filter(tag => 
+      .filter(tag =>
         tag.tagName.toLowerCase().includes(tagSearchQuery.toLowerCase())
       )
       .map(tag => ({ name: tag.tagName, value: tag.tagName }));
@@ -111,7 +130,7 @@ function DynamicCard({ leadCard, TableTitle }) {
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
-    setCurrentPage(1);
+    handlePageChange(1); // Reset to page 1 when search changes
   };
 
   const handleTagSearchChange = (event) => {
@@ -123,58 +142,73 @@ function DynamicCard({ leadCard, TableTitle }) {
     setSelectedTagValues([]);
     setSearchQuery('');
     setTagSearchQuery('');
-    setCurrentPage(1);
+    handlePageChange(1); // Reset to page 1 when filters are cleared
   };
 
   // Combined filtering function with memoization
   const filteredLeads = useMemo(() => {
     if (!leadCard) return [];
-
-    // First filter by search query
-    let filtered = leadCard.filter((lead) => {
-      const searchLower = debouncedSearchQuery.toLowerCase();
-      return (
-        !debouncedSearchQuery ||
-        lead?.name?.toLowerCase().includes(searchLower) ||
-        lead?.phone?.toLowerCase().includes(searchLower) ||
-        lead?.priority?.priorityText?.toLowerCase().includes(searchLower) ||
-        lead?.source?.leadSourcesText?.toLowerCase().includes(searchLower)
-      );
-    });
-
-    // Then filter by selected tags if any
-    if (selectedTagValues.length > 0) {
-      filtered = filtered.filter(item => {
-        if (!item.tags || !Array.isArray(item.tags)) return false;
+  
+    return leadCard.filter((lead) => {
+      // Only include leads that match ALL filtering criteria
+      
+      // 1. Match search query (if provided)
+      if (debouncedSearchQuery) {
+        const searchLower = debouncedSearchQuery.toLowerCase();
+        const matchesSearch = 
+          lead?.name?.toLowerCase().includes(searchLower) ||
+          lead?.phone?.toLowerCase().includes(searchLower) ||
+          lead?.priority?.priorityText?.toLowerCase().includes(searchLower) ||
+          lead?.sources?.leadSourcesText?.toLowerCase().includes(searchLower);
+          
+        if (!matchesSearch) return false;
+      }
+      
+      // 2. Match ALL selected tags (if any are selected)
+      if (selectedTagValues.length > 0) {
+        if (!lead.tags || !Array.isArray(lead.tags)) return false;
         
-        return selectedTagValues.some(selectedTag => {
-          return item.tags.some(tag => {
+        // Check if the lead has ALL selected tags (AND logic)
+        const hasAllSelectedTags = selectedTagValues.every(selectedTag => {
+          return lead.tags.some(tag => {
             const tagName = typeof tag === 'string' ? tag : tag?.tagName;
             return tagName?.toLowerCase() === selectedTag.toLowerCase();
           });
         });
-      });
-    }
-
-    return filtered;
+        
+        if (!hasAllSelectedTags) return false;
+      }
+      
+      // The lead has passed all filter criteria
+      return true;
+    });
   }, [leadCard, debouncedSearchQuery, selectedTagValues]);
 
   // Pagination logic
+  const totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
+  
+  // Ensure current page is valid based on filtered results
+  useEffect(() => {
+    if (filteredLeads.length > 0 && currentPage > totalPages) {
+      handlePageChange(totalPages);
+    }
+  }, [filteredLeads.length, totalPages]);
+  
   const indexOfLastLead = currentPage * itemsPerPage;
   const indexOfFirstLead = indexOfLastLead - itemsPerPage;
   const currentLeads = filteredLeads.slice(indexOfFirstLead, indexOfLastLead);
-  const totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+  
   // Custom header template for MultiSelect
   const panelHeaderTemplate = (options) => {
     return (
       <div>
         <div className="panelHeaderTemplate">
           <span className="font-bold">Tag Filters</span>
-          <button
+          {/* <button
             onClick={(e) => {
               e.stopPropagation();
               clearAllFilters();
@@ -191,12 +225,12 @@ function DynamicCard({ leadCard, TableTitle }) {
             }}
           >
             <i className="ri-close-circle-line"></i>
-          </button>
+          </button> */}
         </div>
         <div className="p-2 flex justify-between items-center">
-          <input 
-            type="text" 
-            className="w-full p-2 border border-gray-300 rounded" 
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300 rounded"
             placeholder="Search tags..."
             value={tagSearchQuery}
             onChange={handleTagSearchChange}
@@ -212,21 +246,19 @@ function DynamicCard({ leadCard, TableTitle }) {
       <div className="custom-filter-container">
         <div className="custom-filter-box">
           <MultiSelect
-            
             value={selectedTagValues}
             options={tagsOptions}
             optionLabel="name"
             onChange={(e) => {
               setSelectedTagValues(e.value);
               setSelectAll(false);
-              setCurrentPage(1);
+              handlePageChange(1); // Reset to page 1 when tag filters change
             }}
             filter
             placeholder="Filter by Tags"
             className="custom-input custom-multiselect"
             panelStyle={{ width: "200px" }}
             panelHeaderTemplate={panelHeaderTemplate}
-            // panelHeaderTemplate={""}
             scrollHeight="200px"
             display="chip"
             itemTemplate={(option) => {
@@ -256,7 +288,7 @@ function DynamicCard({ leadCard, TableTitle }) {
           {searchQuery && (
             <button className="clear-btn" onClick={() => {
               setSearchQuery('');
-              setCurrentPage(1);
+              handlePageChange(1); // Reset to page 1 when search is cleared
             }}>
               <i className="ri-close-circle-line"></i>
             </button>
@@ -291,6 +323,16 @@ function DynamicCard({ leadCard, TableTitle }) {
                               {typeof tag === 'string' ? tag : tag.tagName}
                             </span>
                           ))}
+                        </div>
+                        <div className="priority-source">
+                          <p></p>
+                          <p> <br />
+                            <span style={{ color: "grey" }}>
+                              {lead.latestFollowup?.[0]?.createdAt
+                                ? format(lead.latestFollowup[0].createdAt)
+                                : 'No Followup'}
+                            </span>
+                          </p>
                         </div>
                       </div>
                     </div>
