@@ -82,7 +82,7 @@ function MissedLeads() {
               <DynamicTable lead={finalData} TableTitle={tableTitle} />
             </div>
             <div className='missed-card-container'>
-              {/* <DynamicCard leadCard={finalData} TableTitle={tableTitle}/> */}
+             <DynamicCard leadCard={finalData} TableTitle={tableTitle}/> 
             </div>
  
             {/* modal compoent */}
