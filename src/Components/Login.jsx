@@ -7,7 +7,7 @@ import axios from "axios";
 
 const Login = () => {
   const APi_Url = import.meta.env.VITE_API_URL;
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("");  
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -84,8 +84,8 @@ const Login = () => {
         <p>Access Your Account</p>
 
         <form onSubmit={handleSubmit}>
-          <fieldset className={focusedField === "email" ? "focused" : ""}>
             <legend>Email</legend>
+          <fieldset className={focusedField === "email" ? "focused" : ""}>
             <div className="input-group">
               <input
                 type="email"
@@ -100,8 +100,8 @@ const Login = () => {
               />
             </div>
           </fieldset>
-          <fieldset className={focusedField === "password" ? "focused" : ""}>
             <legend>Password</legend>
+          <fieldset className={focusedField === "password" ? "focused" : ""}>
             <div className="input-group">
               <input
                 type="password"
@@ -116,19 +116,6 @@ const Login = () => {
               />
             </div>
           </fieldset>
-          <div className="remember-forgot">
-            <label>
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={handleRememberMe}
-              />
-              Remember Me
-            </label>
-            <a href="/forgot-password" className="forgot-password-link">
-              Forgot Password?
-            </a>
-          </div>
           <br />
           {error && <div className="error-message">{error}</div>}
 
