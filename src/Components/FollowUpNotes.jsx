@@ -116,7 +116,7 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
                 reminder: isScheduled ? reminder : null,
             };
 
-            console.log('Sending Data:', data);
+            // console.log('Sending Data:', data);
 
             // Axios POST request
             const response = await axios.post(`${APi_Url}/digicoder/crm/api/v1/followup/add/${leadData._id}`, data, {
@@ -126,6 +126,8 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
                 priority:priority,
                 leadStatus:status
             }
+            console.log(FormApiData);
+            
             const leadResponse = await axios.put(
                 `${APi_Url}/digicoder/crm/api/v1/lead/update/${leadData._id}`,
                 FormApiData,
@@ -135,12 +137,6 @@ function FollowUpNotes({ isOpenNote, oncloseNote, leadData }) {
                   },
                 }
               );
-              console.log('====================================')
-              console.log("leadResponse ",leadResponse)
-              console.log('====================================')
-
-            console.log('Response from API:', response.data);
-
             // Show success toast notification
             toast.current.show({ severity: 'success', summary: 'Success', detail: 'Note saved successfully!', life: 3000 });
 
