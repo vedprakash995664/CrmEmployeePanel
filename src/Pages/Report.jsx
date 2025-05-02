@@ -44,7 +44,13 @@ function Report() {
     return createdDate === today;
   });
   const Totalfollowups = followupData.map((item) => item)
-  const FinalPending = filteredData.length - Totalfollowups.length
+  
+  // Calculate pending leads and ensure they don't go below zero
+  let FinalPending = filteredData.length - Totalfollowups.length
+  if(FinalPending < 0){
+    FinalPending = 0
+  }
+
   useEffect(() => {
     fetchFollowUps();
   }, [])
