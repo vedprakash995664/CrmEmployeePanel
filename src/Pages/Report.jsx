@@ -99,15 +99,15 @@ function Report() {
               <p style={{ color: "white" }}>{closedLeads.length}</p>
             </div>
           </div>
-          <div className="report-card1" style={{ backgroundColor: "#3454D1" }}>
+          {/* <div className="report-card1" style={{ backgroundColor: "#3454D1" }}>
             <div className="report-card11">
-              {/* <PendingActionsIcon style={{ fontSize: "100px", color: "white" }} /> */}
+              
             </div>
             <div className="report-card12">
               <span style={{ color: "white" }}>Pending Leads</span>
               <p style={{ color: "white" }}>{FinalPending}</p>
             </div>
-          </div>
+          </div> */}
           <div className="report-card1">
             <div className="report-card11">
               {/* <UnpublishedIcon style={{ fontSize: "100px" }} /> */}

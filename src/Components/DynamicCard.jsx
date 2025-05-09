@@ -29,7 +29,6 @@ function DynamicCard({ leadCard, TableTitle }) {
   const dispatch = useDispatch();
   const tagData = useSelector((state) => state.leads.tag);
 
-  // Initialize currentPage from URL param or localStorage, defaulting to 1 if neither exists
   const [currentPage, setCurrentPage] = useState(() => {
     const pageFromUrl = parseInt(searchParams.get('page'));
     if (pageFromUrl && !isNaN(pageFromUrl)) {
@@ -89,7 +88,7 @@ function DynamicCard({ leadCard, TableTitle }) {
     localStorage.setItem('selectedTagFilters', JSON.stringify(selectedTagValues));
   }, [selectedTagValues]);
 
-  const tagsOptions = useMemo(() => {
+  const tagsOptions = useMemo(() => {  
     return tagData
       .filter(tag =>
         tag.tagName.toLowerCase().includes(tagSearchQuery.toLowerCase())
@@ -126,6 +125,7 @@ function DynamicCard({ leadCard, TableTitle }) {
 
   const closeNote = () => {
     setNoteOpen(false);
+
   };
 
   const handleSearchChange = (event) => {
@@ -209,24 +209,6 @@ function DynamicCard({ leadCard, TableTitle }) {
       <div>
         <div className="panelHeaderTemplate">
           <span className="font-bold">Tag Filters</span>
-          {/* <button
-            onClick={(e) => {
-              e.stopPropagation();
-              clearAllFilters();
-            }}
-            className="clear-all-btn"
-            style={{
-              backgroundColor: '#f44336',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              padding: '4px 8px',
-              fontSize: '20px',
-              cursor: 'pointer'
-            }}
-          >
-            <i className="ri-close-circle-line"></i>
-          </button> */}
         </div>
         <div className="p-2 flex justify-between items-center">
           <input
