@@ -215,6 +215,7 @@ function Report() {
                 </div>
               </div>
             </Card>
+            <br /><br /><br />
           </div>
         )}
 
