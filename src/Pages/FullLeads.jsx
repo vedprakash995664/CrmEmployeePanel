@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { toast, ToastContainer } from 'react-toastify'; // Import Toastify
-import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import './CSS/FullLeads.css'
 import FollowUpNotes from '../Components/FollowUpNotes';
@@ -46,25 +46,12 @@ function FullLeads() {
     },
   };
 
-  const handleTagChange = (event) => {
-    const { value } = event.target;
-    const selectedTagIds = tagData
-      .filter(tag => value.includes(tag.tagName))
-      .map(tag => tag._id);
-
-    setFormData(prev => ({
-      ...prev,
-      tagNames: value,
-      tags: selectedTagIds
-    }));
-  };
-
   const navigate = useNavigate();
   const location = useLocation();
   const { viewdata } = location.state || [];
   const { TableTitle } = location.state || [];
   const { fromEdit } = location.state || [];
-  const [selectedTags, setSelectedTags] = useState(viewdata?.tags || []);
+
   const [formData, setFormData] = useState({
     Name: viewdata.name || "",
     Email: viewdata.email || "",
@@ -79,17 +66,22 @@ function FullLeads() {
     Country: viewdata.country || "",
     CreatedDate: viewdata.createdAt || "",
     tags: Array.isArray(viewdata?.tags)
-    ? viewdata.tags.map(tag => tag._id)
-    : viewdata?.tags?._id ? [viewdata.tags._id] : [],
+      ? viewdata.tags.map(tag => tag._id)
+      : viewdata?.tags?._id ? [viewdata.tags._id] : [],
     tagNames: Array.isArray(viewdata?.tags)
       ? viewdata.tags.map(tag => tag.tagName)
       : viewdata?.tags?.tagName ? [viewdata.tags.tagName] : [],
     LeadStatus: viewdata.leadStatus?._id || "",
   });
 
+  const [isDisabled, setIsDisabled] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [followUps, setFollowUps] = useState([]);
+  const [activeData, setActiveData] = useState()
+
   const FormApiData = {
     name: formData.Name,
-    phone:formData.Phone,
+    phone: formData.Phone,
     email: formData.Email,
     gender: formData.Gender,
     dob: formData.DateOfBirth,
@@ -100,7 +92,7 @@ function FullLeads() {
     state: formData.State,
     country: formData.Country,
     leadStatus: formData.LeadStatus,
-    tags: selectedTags
+    tags: formData.tags
   };
 
   useEffect(() => {
@@ -155,12 +147,56 @@ function FullLeads() {
     }
   }, [navigate, fromEdit])
 
-  const [isDisabled, setIsDisabled] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
+  useEffect(() => {
+    if (TableTitle === 'Closed Lead') {
+      setActionBtn(false);
+      setUnCloseActionBtn(true);
+    }
+    else if (TableTitle == 'Negative Lead') {
+      setActionBtn(false);
+      setUnCloseActionBtn(false)
+      setUnNegativeActionBtn(true)
+    }
+    fetchFollowUps();
+  }, [viewdata._id]);
+
+  useEffect(() => {
+    if (TableTitle == 'Leads') {
+      setActiveData("dashboard")
+    }
+    else if (TableTitle == 'Total Leads') {
+      setActiveData("lead")
+    }
+    else if (TableTitle == 'Today Reminders') {
+      setActiveData("reminder")
+    }
+    else if (TableTitle == 'Missed Leads') {
+      setActiveData("missedLead")
+    }
+    else if (TableTitle == 'Closed Lead') {
+      setActiveData("closedLead")
+    }
+    else if (TableTitle == 'Negative Lead') {
+      setActiveData("negative")
+    }
+  }, [TableTitle])
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleTagChange = (event) => {
+    const { value } = event.target;
+    const selectedTagIds = tagData
+      .filter(tag => value.includes(tag.tagName))
+      .map(tag => tag._id);
+
+    setFormData(prev => ({
+      ...prev,
+      tagNames: value,
+      tags: selectedTagIds
+    }));
   };
 
   const handleUpdate = () => {
@@ -169,7 +205,7 @@ function FullLeads() {
   };
 
   const handleSave = async () => {
-    setIsLoading(true);  // Start loader (set isLoading to true)
+    setIsLoading(true);
 
     try {
       const response = await axios.put(
@@ -197,13 +233,12 @@ function FullLeads() {
       console.error("Error updating lead:", error);
       toast.error("Error occurred while updating. Please try again.");
     } finally {
-      setIsLoading(false);  // Stop loader (set isLoading to false)
+      setIsLoading(false);
     }
   };
 
-  const [followUps, setFollowUps] = useState([]);
   const fetchFollowUps = async () => {
-    setIsLoadingFollowUps(true); // Set loading to true before fetching
+    setIsLoadingFollowUps(true);
     try {
       const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/followup/getall/${viewdata._id}`);
       if (response.status === 200) {
@@ -213,22 +248,9 @@ function FullLeads() {
       console.error("Error fetching follow-up data:", error);
       toast.error("Error fetching follow-up data. Please try again.");
     } finally {
-      setIsLoadingFollowUps(false); // Set loading to false after fetching
+      setIsLoadingFollowUps(false);
     }
   };
-
-  useEffect(() => {
-    if (TableTitle === 'Closed Lead') {
-      setActionBtn(false);
-      setUnCloseActionBtn(true);
-    }
-    else if (TableTitle == 'Negative Lead') {
-      setActionBtn(false);
-      setUnCloseActionBtn(false)
-      setUnNegativeActionBtn(true)
-    }
-    fetchFollowUps();
-  }, [viewdata._id]);
 
   const handleStickyNote = (viewdata) => {
     setNoteOpen(true);
@@ -238,29 +260,6 @@ function FullLeads() {
     setNoteOpen(false)
     fetchFollowUps();
   }
-
-  const [activeData, setActiveData] = useState()
-
-  useEffect(() => {
-    if (TableTitle == 'Leads') {
-      setActiveData("dashboard")
-    }
-    else if (TableTitle == 'Total Leads') {
-      setActiveData("lead")
-    }
-    else if (TableTitle == 'Today Reminders') {
-      setActiveData("reminder")
-    }
-    else if (TableTitle == 'Missed Leads') {
-      setActiveData("missedLead")
-    }
-    else if (TableTitle == 'Closed Lead') {
-      setActiveData("closedLead")
-    }
-    else if (TableTitle == 'Negative Lead') {
-      setActiveData("negative")
-    }
-  })
 
   const handleBack = () => {
     if (TableTitle == 'Leads') {
@@ -297,20 +296,15 @@ function FullLeads() {
 
     if (result.isConfirmed) {
       try {
-        // Make the API request to mark as negative
         const response = await axios.put(`${APi_Url}/digicoder/crm/api/v1/lead/negative/${viewdata._id}`);
-
-        // Handle successful response
         if (response.status === 200) {
           Swal.fire({
             title: 'Marked as Negative!',
             icon: 'success',
           }).then(() => {
-            // Navigate to the leads page
             navigate('/leads');
           });
         } else {
-          // If the response isn't successful, you can show an error message
           Swal.fire({
             title: 'Failed to Mark as Negative',
             text: 'Something went wrong. Please try again.',
@@ -318,7 +312,6 @@ function FullLeads() {
           });
         }
       } catch (error) {
-        // Handle any errors during the request
         Swal.fire({
           title: 'Error',
           text: error.message || 'Something went wrong. Please try again later.',
@@ -333,7 +326,6 @@ function FullLeads() {
     }
   };
 
-  //mark as close
   const handleCloseForAlways = async () => {
     const result = await Swal.fire({
       title: 'Are you sure?',
@@ -345,20 +337,15 @@ function FullLeads() {
 
     if (result.isConfirmed) {
       try {
-        // Make the API request to mark as negative
         const response = await axios.put(`${APi_Url}/digicoder/crm/api/v1/lead/closed/${viewdata._id}`);
-
-        // Handle successful response
         if (response.status === 200) {
           Swal.fire({
             title: 'Marked as Closed!',
             icon: 'success',
           }).then(() => {
-            // Navigate to the leads page
             navigate('/leads');
           });
         } else {
-          // If the response isn't successful, you can show an error message
           Swal.fire({
             title: 'Failed to Mark as Closed',
             text: 'Something went wrong. Please try again.',
@@ -366,7 +353,6 @@ function FullLeads() {
           });
         }
       } catch (error) {
-        // Handle any errors during the request
         Swal.fire({
           title: 'Error',
           text: error.message || 'Something went wrong. Please try again later.',
@@ -392,20 +378,15 @@ function FullLeads() {
 
     if (result.isConfirmed) {
       try {
-        // Make the API request to mark as negative
         const response = await axios.put(`${APi_Url}/digicoder/crm/api/v1/lead/unclosed/${viewdata._id}`);
-
-        // Handle successful response
         if (response.status === 200) {
           Swal.fire({
             title: 'Lead UnClosed!',
             icon: 'success',
           }).then(() => {
-            // Navigate to the leads page
             navigate('/leads');
           });
         } else {
-          // If the response isn't successful, you can show an error message
           Swal.fire({
             title: 'Failed to UnClosed',
             text: 'Something went wrong. Please try again.',
@@ -413,7 +394,6 @@ function FullLeads() {
           });
         }
       } catch (error) {
-        // Handle any errors during the request
         Swal.fire({
           title: 'Error',
           text: error.message || 'Something went wrong. Please try again later.',
@@ -439,20 +419,15 @@ function FullLeads() {
 
     if (result.isConfirmed) {
       try {
-        // Make the API request to mark as negative
         const response = await axios.put(`${APi_Url}/digicoder/crm/api/v1/lead/UnnegativedLead/${viewdata._id}`);
-
-        // Handle successful response
         if (response.status === 200) {
           Swal.fire({
             title: 'Lead Moved!',
             icon: 'success',
           }).then(() => {
-            // Navigate to the leads page
             navigate('/leads');
           });
         } else {
-          // If the response isn't successful, you can show an error message
           Swal.fire({
             title: 'Failed to Moving Lead',
             text: 'Something went wrong. Please try again.',
@@ -460,7 +435,6 @@ function FullLeads() {
           });
         }
       } catch (error) {
-        // Handle any errors during the request
         Swal.fire({
           title: 'Error',
           text: error.message || 'Something went wrong. Please try again later.',
@@ -476,174 +450,173 @@ function FullLeads() {
   };
 
   return (
-    <div >
+    <div>
       <Dashboard active={activeData}>
         <div className="content fullLead-outer">
-          <>
-            <div className="fullLead-outer">
-              <div className="fullLeads-header">
-                <div className="back-btn">
-                  <button onClick={handleBack}><i className="ri-arrow-left-line"></i> Back</button>
-                </div>
-                <div className="fullLeads-icons">
-                  <Link to={`http://wa.me/${formData.Phone}`}><button style={{ color: "green" }}><i className="ri-whatsapp-line"></i></button></Link>
-                  <a href={`tel:${formData.Phone}`} style={{ textDecoration: "none", color: "blue" }}>
-                    <button className="ri-phone-fill" style={{ background: "none", border: "none", color: "blue" }}></button>
-                  </a>
-                  <Link to={`mailto:${formData.Email}`}><img src="/Images/mail.svg" alt="" style={{ height: "25px", position: "relative", bottom: "8px" }} /></Link>
-                </div>
+          <div className="fullLead-outer">
+            <div className="fullLeads-header">
+              <div className="back-btn">
+                <button onClick={handleBack}><i className="ri-arrow-left-line"></i> Back</button>
               </div>
+              <div className="fullLeads-icons">
+                <Link to={`http://wa.me/${formData.Phone}`}><button style={{ color: "green" }}><i className="ri-whatsapp-line"></i></button></Link>
+                <a href={`tel:${formData.Phone}`} style={{ textDecoration: "none", color: "blue" }}>
+                  <button className="ri-phone-fill" style={{ background: "none", border: "none", color: "blue" }}></button>
+                </a>
+                <Link to={`mailto:${formData.Email}`}><img src="/Images/mail.svg" alt="" style={{ height: "25px", position: "relative", bottom: "8px" }} /></Link>
+              </div>
+            </div>
 
-              <div className="fullLeads-view-data">
-                <div className="view-data-title">
-                  <span>INFORMATION</span>
-                </div>
-                <div className="view-info-form">
-                  <div className="form-row">
-                    <div>
-                      <div className="label">Name</div>
-                      <input
-                        type="text"
-                        className="input-field"
-                        name="Name"
-                        value={formData.Name}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                      />
-                    </div>
-                    <div>
-                      <div className="label">Phone Number</div>
-                      <input
-                        type="text"
-                        className="input-field"
-                        name="Phone"
-                        value={formData.Phone}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                      />
-                    </div>
-                    <div>
-                      <div className="label">Email</div>
-                      <input
-                        type="email"
-                        className="input-field"
-                        name="Email"
-                        value={formData.Email}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                      />
-                    </div>
-                    <div>
-                      <div className="label">Gender</div>
-                      <select
-                        className="input-field"
-                        name="Gender"
-                        value={formData.Gender}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                      >
-                        <option value="" disabled>-- Select --</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                    <div>
-                      <div className="label">Date of Birth</div>
-                      <input
-                        type="date"
-                        className="input-field"
-                        name="DateOfBirth"
-                        value={formData.DateOfBirth}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                      />
-                    </div>
-                    <div>
-                      <div className="label">Priority</div>
-                      <Dropdown
-                        id="priority"
-                        name="Priority"
-                        value={formData.Priority}
-                        options={priorityOptions}
-                        onChange={handleChange}
-                        optionLabel="label"
-                        optionValue="value"
-                        disabled={isDisabled}
-                        placeholder="Select priority"
-                        className="p-dropdown"
-                      />
-                    </div>
-                    <div>
-                      <div className="label">Source</div>
-                      <Dropdown
-                        id="sources"
-                        name="sources"
-                        value={formData.Source}
-                        options={sourcesOptions}
-                        onChange={handleChange}
-                        optionLabel="label"
-                        disabled
-                        placeholder="Select source"
-                        className="p-dropdown"
-                      />
-                    </div>
-                    <div>
-                      <div className="label">City</div>
-                      <input
-                        type="text"
-                        className="input-field"
-                        name="City"
-                        value={formData.City}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                      />
-                    </div>
-                    <div>
-                      <div className="label">Zip Code</div>
-                      <input
-                        type="number"
-                        className="input-field"
-                        name="ZipCode"
-                        value={formData.ZipCode}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                      />
-                    </div>
-                    <div>
-                      <div className="label">State</div>
-                      <input
-                        type="text"
-                        className="input-field"
-                        name="State"
-                        value={formData.State}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                      />
-                    </div>
-                    <div>
-                      <div className="label">Country</div>
-                      <input
-                        type="text"
-                        className="input-field"
-                        name="Country"
-                        value={formData.Country}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                      />
-                    </div>
-                    <div>
-                      <div className="label">Created Date</div>
-                      <input
-                        type="text"
-                        className="input-field"
-                        name="createdDate"
-                        value={formData.CreatedDate}
-                        onChange={handleChange}
-                        disabled
-                      />
-                    </div>
-                    <div>
+            <div className="fullLeads-view-data">
+              <div className="view-data-title">
+                <span>INFORMATION</span>
+              </div>
+              <div className="view-info-form">
+                <div className="form-row">
+                  <div>
+                    <div className="label">Name</div>
+                    <input
+                      type="text"
+                      className="input-field"
+                      name="Name"
+                      value={formData.Name}
+                      onChange={handleChange}
+                      disabled={isDisabled}
+                    />
+                  </div>
+                  <div>
+                    <div className="label">Phone Number</div>
+                    <input
+                      type="text"
+                      className="input-field"
+                      name="Phone"
+                      value={formData.Phone}
+                      onChange={handleChange}
+                      disabled={isDisabled}
+                    />
+                  </div>
+                  <div>
+                    <div className="label">Email</div>
+                    <input
+                      type="email"
+                      className="input-field"
+                      name="Email"
+                      value={formData.Email}
+                      onChange={handleChange}
+                      disabled={isDisabled}
+                    />
+                  </div>
+                  <div>
+                    <div className="label">Gender</div>
+                    <select
+                      className="input-field"
+                      name="Gender"
+                      value={formData.Gender}
+                      onChange={handleChange}
+                      disabled={isDisabled}
+                    >
+                      <option value="" disabled>-- Select --</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <div className="label">Date of Birth</div>
+                    <input
+                      type="date"
+                      className="input-field"
+                      name="DateOfBirth"
+                      value={formData.DateOfBirth}
+                      onChange={handleChange}
+                      disabled={isDisabled}
+                    />
+                  </div>
+                  <div>
+                    <div className="label">Priority</div>
+                    <Dropdown
+                      id="priority"
+                      name="Priority"
+                      value={formData.Priority}
+                      options={priorityOptions}
+                      onChange={handleChange}
+                      optionLabel="label"
+                      optionValue="value"
+                      disabled={isDisabled}
+                      placeholder="Select priority"
+                      className="p-dropdown"
+                    />
+                  </div>
+                  <div>
+                    <div className="label">Source</div>
+                    <Dropdown
+                      id="sources"
+                      name="sources"
+                      value={formData.Source}
+                      options={sourcesOptions}
+                      onChange={handleChange}
+                      optionLabel="label"
+                      disabled
+                      placeholder="Select source"
+                      className="p-dropdown"
+                    />
+                  </div>
+                  <div>
+                    <div className="label">City</div>
+                    <input
+                      type="text"
+                      className="input-field"
+                      name="City"
+                      value={formData.City}
+                      onChange={handleChange}
+                      disabled={isDisabled}
+                    />
+                  </div>
+                  <div>
+                    <div className="label">Zip Code</div>
+                    <input
+                      type="number"
+                      className="input-field"
+                      name="ZipCode"
+                      value={formData.ZipCode}
+                      onChange={handleChange}
+                      disabled={isDisabled}
+                    />
+                  </div>
+                  <div>
+                    <div className="label">State</div>
+                    <input
+                      type="text"
+                      className="input-field"
+                      name="State"
+                      value={formData.State}
+                      onChange={handleChange}
+                      disabled={isDisabled}
+                    />
+                  </div>
+                  <div>
+                    <div className="label">Country</div>
+                    <input
+                      type="text"
+                      className="input-field"
+                      name="Country"
+                      value={formData.Country}
+                      onChange={handleChange}
+                      disabled={isDisabled}
+                    />
+                  </div>
+                  <div>
+                    <div className="label">Created Date</div>
+                    <input
+                      type="text"
+                      className="input-field"
+                      name="createdDate"
+                      value={formData.CreatedDate}
+                      onChange={handleChange}
+                      disabled
+                    />
+                  </div>
+                  <div>
                     <FormControl sx={{ width: "250px", m: 1 }}>
                       <InputLabel id="tags-label">Tags</InputLabel>
                       <Select
@@ -666,122 +639,116 @@ function FullLeads() {
                       </Select>
                     </FormControl>
                   </div>
-
-                    <div>
-                      <div className="label">Lead Status</div>
-                      <Dropdown
-                        id="LeadStatus"
-                        name="LeadStatus"
-                        value={formData.LeadStatus}
-                        options={leadStatusOptions}
-                        onChange={(e) => handleChange({ target: { name: 'LeadStatus', value: e.value } })}
-                        optionLabel="label"
-                        disabled={isDisabled}
-                        placeholder="Select lead status"
-                        className="p-dropdown"
-                      />
-                    </div>
-                  </div>
-                  <div className="view-edit-btn">
-                    <button onClick={isEditing ? handleSave : handleUpdate}>
-                      {isLoading ? (
-                        <span>Loading...</span>  // Show loading text or you could use a spinner here
-                      ) : isEditing ? (
-                        "Save"
-                      ) : (
-                        "Update"
-                      )}
-                    </button>
+                  <div>
+                    <div className="label">Lead Status</div>
+                    <Dropdown
+                      id="LeadStatus"
+                      name="LeadStatus"
+                      value={formData.LeadStatus}
+                      options={leadStatusOptions}
+                      onChange={(e) => handleChange({ target: { name: 'LeadStatus', value: e.value } })}
+                      optionLabel="label"
+                      disabled={isDisabled}
+                      placeholder="Select lead status"
+                      className="p-dropdown"
+                    />
                   </div>
                 </div>
-              </div>
-
-              {/* Follow-ups Section */}
-              <div className="follow-ups">
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <div className="view-data-titlee">
-                    <span>FOLLOW UP</span>
-                    <button className="view-data-button" onClick={() => handleStickyNote(viewdata)}>Add New</button>
-                  </div>
+                <div className="view-edit-btn">
+                  <button onClick={isEditing ? handleSave : handleUpdate}>
+                    {isLoading ? (
+                      <span>Loading...</span>
+                    ) : isEditing ? (
+                      "Save"
+                    ) : (
+                      "Update"
+                    )}
+                  </button>
                 </div>
-
-                <div className="follow-ups">
-                  {/* Show loader when loading */}
-                  {isLoadingFollowUps ? (
-                    <div className="loader-container" style={{ textAlign: 'center', padding: '20px' }}>
-                      <div className="loader" style={{ 
-                        border: '4px solid #f3f3f3',
-                        borderTop: '4px solid #3498db',
-                        borderRadius: '50%',
-                        width: '40px',
-                        height: '40px',
-                        animation: 'spin 2s linear infinite',
-                        margin: '0 auto'
-                      }}></div>
-                      <p style={{ marginTop: '10px' }}>Loading follow-ups...</p>
-                      <style>{`
-                        @keyframes spin {
-                          0% { transform: rotate(0deg); }
-                          100% { transform: rotate(360deg); }
-                        }
-                      `}</style>
-                    </div>
-                  ) : followUps.length > 0 ? (
-                    /* Display follow-ups if available */
-                    followUps.map((followUp, index) => (
-                      <div key={followUp._id} className="follow-outer">
-                        <div className="follow-body">
-                          <div className="follow-body-header">
-                            <div className="followup-srNo">{followUps.length - index}</div>
-                            <div>
-                              <span className="cratedBy">Created Date-</span> <span className="cratedBy">{followUp.createdAt.split("T")[0]}</span>
-                              <div style={{ marginTop: "5px" }}><span className="cratedBy">Created By-</span> <span className="cratedBy">{followUp.followedBy.empName}</span></div>
-                            </div>
-                          </div>
-                          <div className="follow-ups-txt">
-                            <p><b>Message:- </b><span>{followUp.followupMessage}</span></p>
-                            <p><b>Next-FollowUp-Date:- </b> <span>{followUp.followupStatus?.nextFollowupDate || "Not Set"}</span></p>
-                          </div>
-                        </div>
-                        <hr />
-                      </div>
-                    ))
-                  ) : (
-                    /* Show message when no follow-ups are found */
-                    <div className="no-followups" style={{ 
-                      textAlign: 'center', 
-                      padding: '30px', 
-                      backgroundColor: '#f9f9f9', 
-                      borderRadius: '8px',
-                      margin: '20px 0'
-                    }}>
-                      <i className="ri-information-line" style={{ fontSize: '30px', color: '#999', marginBottom: '10px' }}></i>
-                      <p style={{ fontSize: '16px', color: '#666' }}>No follow-ups found for this lead.</p>
-                      <p style={{ fontSize: '14px', color: '#999', marginTop: '5px' }}>Click on "Add New" to create your first follow-up.</p>
-                    </div>
-                  )}
-                </div>
-
-                {actionBtn && (
-                  <div className="lead-action-btn">
-                    <button className="negative-btn" onClick={() => handleMarkNegative()}>Mark as Negative</button>
-                    <button className="close-btn" onClick={() => handleCloseForAlways()}>Mark as Close</button>
-                  </div>
-                )}
-                {unCloseActionBtn && (
-                  <div className="lead-action-btn">
-                    <button className="negative-btn" onClick={() => handleUnCloseForAlways()}>Unclose Lead</button>
-                  </div>
-                )}
-                {unNegativeActionBtn && (
-                  <div className="lead-action-btn">
-                    <button className="close-btn" onClick={() => handleUnNegativeForAlways()}>Move to new Lead</button>
-                  </div>
-                )}
               </div>
             </div>
-            <FollowUpNotes isOpenNote={noteOpen} oncloseNote={closeNote} leadData={viewdata} />
-          </>
+
+            <div className="follow-ups">
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div className="view-data-titlee">
+                  <span>FOLLOW UP</span>
+                  <button className="view-data-button" onClick={() => handleStickyNote(viewdata)}>Add New</button>
+                </div>
+              </div>
+
+              <div className="follow-ups">
+                {isLoadingFollowUps ? (
+                  <div className="loader-container" style={{ textAlign: 'center', padding: '20px' }}>
+                    <div className="loader" style={{ 
+                      border: '4px solid #f3f3f3',
+                      borderTop: '4px solid #3498db',
+                      borderRadius: '50%',
+                      width: '40px',
+                      height: '40px',
+                      animation: 'spin 2s linear infinite',
+                      margin: '0 auto'
+                    }}></div>
+                    <p style={{ marginTop: '10px' }}>Loading follow-ups...</p>
+                    <style>{`
+                      @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                      }
+                    `}</style>
+                  </div>
+                ) : followUps.length > 0 ? (
+                  followUps.map((followUp, index) => (
+                    <div key={followUp._id} className="follow-outer">
+                      <div className="follow-body">
+                        <div className="follow-body-header">
+                          <div className="followup-srNo">{followUps.length - index}</div>
+                          <div>
+                            <span className="cratedBy">Created Date-</span> <span className="cratedBy">{followUp.createdAt.split("T")[0]}</span>
+                            <div style={{ marginTop: "5px" }}><span className="cratedBy">Created By-</span> <span className="cratedBy">{followUp.followedBy.empName}</span></div>
+                          </div>
+                        </div>
+                        <div className="follow-ups-txt">
+                          <p><b>Message:- </b><span>{followUp.followupMessage}</span></p>
+                          <p><b>Next-FollowUp-Date:- </b> <span>{followUp.followupStatus?.nextFollowupDate || "Not Set"}</span></p>
+                        </div>
+                      </div>
+                      <hr />
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-followups" style={{ 
+                    textAlign: 'center', 
+                    padding: '30px', 
+                    backgroundColor: '#f9f9f9', 
+                    borderRadius: '8px',
+                    margin: '20px 0'
+                  }}>
+                    <i className="ri-information-line" style={{ fontSize: '30px', color: '#999', marginBottom: '10px' }}></i>
+                    <p style={{ fontSize: '16px', color: '#666' }}>No follow-ups found for this lead.</p>
+                    <p style={{ fontSize: '14px', color: '#999', marginTop: '5px' }}>Click on "Add New" to create your first follow-up.</p>
+                  </div>
+                )}
+              </div>
+
+              {actionBtn && (
+                <div className="lead-action-btn">
+                  <button className="negative-btn" onClick={() => handleMarkNegative()}>Mark as Negative</button>
+                  <button className="close-btn" onClick={() => handleCloseForAlways()}>Mark as Close</button>
+                </div>
+              )}
+              {unCloseActionBtn && (
+                <div className="lead-action-btn">
+                  <button className="negative-btn" onClick={() => handleUnCloseForAlways()}>Unclose Lead</button>
+                </div>
+              )}
+              {unNegativeActionBtn && (
+                <div className="lead-action-btn">
+                  <button className="close-btn" onClick={() => handleUnNegativeForAlways()}>Move to new Lead</button>
+                </div>
+              )}
+            </div>
+          </div>
+          <FollowUpNotes isOpenNote={noteOpen} oncloseNote={closeNote} leadData={viewdata} />
         </div>
       </Dashboard>
     </div>

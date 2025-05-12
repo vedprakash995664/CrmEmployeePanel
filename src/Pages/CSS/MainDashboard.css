@@ -1,107 +1,310 @@
+/* Main Dashboard Container */
+.main-dashboard-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  /* background-color: #f7f9fc; */
+}
+
 .main-dashboard-outer {
   width: 100%;
-  margin: 20px auto;
+  margin: 0 auto;
 }
 
+/* Card Row Styling */
 .card-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 0 20px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
+/* Dashboard Card Styling - Base */
 .dashboard-card {
-  background-color: #ffffff;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
   border-radius: 16px;
-  padding: 20px;
+  cursor: pointer;
+  padding: 30px 25px;
   display: flex;
-  align-items: center;
-  width: calc(25% - 15px);
-  transition: transform 0.2s ease;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  height: 220px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  color: #333;
+}
+
+/* Specific Card Styling by type, not by position */
+.assigned-card {
+
+
+  background-color: #26A69A; /* Teal for adding */
+  color: white;
+}
+
+.closed-card {
+  background-color: #4CAF50; /* Green for completed */
+  color: white;
+}
+
+.negative-card {
+  background-color: #FFA726; /* Orange for negative */
+  color: white;
+}
+
+.today-followups-card {
+  background-color: #29B6F6; /* Blue for today's follow ups */
+  color: white;
+}
+
+.total-followups-card {
+  background-color: #3949A3;
+  color: white;
+}
+
+.missed-card {
+  background-color: #FF5252; /* Red for missed */
+  color: white;
+}
+
+.reminder-card {
+  background-color: #7E57C2; /* Purple for reminders */
+  color: white;
+}
+
+.add-lead-card {
+    background-color: #ffffff;
+  color: #3D59CD;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-.card-icon {
-  font-size: 36px;
-  color: #3454D1;
-  margin-right: 16px;
+/* Card Header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+/* Card Content Layout */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .card-content h4 {
-  font-size: 14px;
-  color: #333;
-  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 25px 0;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.number-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  font-size: 28px;
+  margin-right: 20px;
+}
+
+/* Card icon styling by card type */
+.add-lead-card .card-icon {
+  background-color: rgba(0, 0, 0, 0.06);
+  color: #3D59CD;
+}
+
+.total-followups-card .card-icon,
+.closed-card .card-icon,
+.negative-card .card-icon,
+.today-followups-card .card-icon,
+.missed-card .card-icon,
+.reminder-card .card-icon,
+.assigned-card .card-icon
+{
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 .card-content h1 {
-  font-size: 32px;
+  font-size: 46px;
   font-weight: 700;
-  margin-top: 4px;
-  color: #111;
+  margin: 0;
+  line-height: 1;
 }
 
-/* Responsive styles */
-@media screen and (max-width: 1024px) {
-  .dashboard-card {
-    width: calc(50% - 10px);
+.card-description {
+  margin-top: auto;
+  font-size: 14px;
+  opacity: 0.9;
+  text-align: center;
+}
+
+
+
+.add-icon {
+  background-color: rgba(255, 255, 255, 0.25);
+  width: 80px;
+  height: 80px;
+  font-size: 36px;
+  margin: 0 auto;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.add-lead-card:hover .add-icon {
+  transform: scale(1.1);
+  background-color: rgba(73, 19, 139, 0.906);
+  color: white;
+}
+
+.add-lead-button {
+  background-color: white;
+  color: #26A69A;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  font-weight: 600;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-lead-button:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Progress bar for completion rate */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  margin: 15px 0;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  width: 0%; /* Default, will be set dynamically */
+}
+
+/* Circle Loader Animation */
+.circle-loader {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.assigned-card .circle-loader,
+.total-followups-card .circle-loader {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #666;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media screen and (max-width: 600px) {
-  .dashboard-card {
-    width: 100%;
-  }
-
-  .card-row {
-    padding: 10px;
-  }
-}
-
+/* Bottom Section - Table/Cards */
 .main-dashboard-bottom {
   margin: 20px auto;
   width: 100%;
-  box-shadow: 0px 0px 12px 0px rgb(203, 201, 201);
+  background-color: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
   border-radius: 20px;
-  overflow-x: auto;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.main-dashboard-bottom:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .table-title {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 5px;
-  justify-content: space-around;
-  margin-bottom: 20px;
+  padding: 18px 24px;
+  justify-content: space-between;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .table-title input {
-  height: 40px;
-  font-size: 17px;
-  color: black;
+  height: 44px;
+  font-size: 16px;
+  color: #333;
   border: 2px solid #3454D1;
-  border-radius: 8px;
+  border-radius: 10px;
   width: 100%;
-  padding-left: 20px;
+  padding: 0 20px;
   outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.table-title input:focus {
+  border-color: #2a43a7;
+  box-shadow: 0 2px 10px rgba(52, 84, 209, 0.1);
 }
 
 .table-title h2 {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 700;
   color: #333;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
 }
 
+/* Mobile Card Container */
 .main-card-container {
   display: none;
+  padding: 16px;
+}
+
+/* Responsive styles */
+@media screen and (max-width: 1200px) {
+  .card-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media screen and (max-width: 768px) {
+  .main-dashboard-container {
+    padding: 12px;
+  }
+  
   .main-table-container {
     display: none;
   }
@@ -111,7 +314,74 @@
   }
 
   .main-dashboard-bottom {
-    padding: 0;
-    margin: 0;
+    box-shadow: none;
+    background-color: transparent;
+  }
+  
+  .card-row {
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .dashboard-card {
+    padding: 20px;
+    height: 200px;
+  }
+  
+  .card-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+  }
+  
+  .card-content h4 {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .card-content h1 {
+    font-size: 40px;
+  }
+
+  .card-description {
+    font-size: 13px;
+  }
+  
+  .add-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 32px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .card-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-card {
+    padding: 18px;
+    height: 180px;
+  }
+  
+  .table-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .card-content h1 {
+    font-size: 36px;
+  }
+  
+  .add-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+  
+  .add-lead-button {
+    padding: 8px 16px;
+    font-size: 14px;
   }
 }

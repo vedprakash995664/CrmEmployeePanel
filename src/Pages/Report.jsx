@@ -42,12 +42,12 @@ function Report() {
 
   // Memoized calculations for better performance
   const closedLeads = useMemo(() => 
-    leads.filter((lead) => lead.closed === true), 
+    leads.filter((lead) => lead.closed === true && lead.negative === false && lead.deleted===false), 
     [leads]
   );
 
   const NegativeLeads = useMemo(() => 
-    leads.filter((lead) => lead.negative === true), 
+    leads.filter((lead) => lead.negative === true && lead.deleted===false  && lead.closed===false), 
     [leads]
   );
 
