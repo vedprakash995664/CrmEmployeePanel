@@ -17,7 +17,7 @@ function Reminders() {
   const dispatch = useDispatch();
   const followUps = useSelector((state) => state.leads.followups);
   useEffect(() => {
-    const tokenId = sessionStorage.getItem('Token');
+    const tokenId = localStorage.getItem('Token');
     if (!tokenId) {
       navigate('/')
     }

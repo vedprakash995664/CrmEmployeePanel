@@ -136,7 +136,7 @@ function FullLeads() {
   }, [sourcesData]);
 
   useEffect(() => {
-    const tokenId = sessionStorage.getItem('Token');
+    const tokenId = localStorage.getItem('Token');
     if (!tokenId) {
       navigate('/')
     }
@@ -178,6 +178,9 @@ function FullLeads() {
     }
     else if (TableTitle == 'Negative Lead') {
       setActiveData("negative")
+    }
+    else if (TableTitle == 'Pending Leads') {
+      setActiveData("pending")
     }
   }, [TableTitle])
 
@@ -270,6 +273,9 @@ function FullLeads() {
     }
     else if (TableTitle == 'Total Leads') {
       navigate("/leads")
+    }
+    else if (TableTitle == 'Pending Leads') {
+      navigate("/pending")
     }
     else if (TableTitle == 'Today Reminders') {
       navigate("/todayRminders")

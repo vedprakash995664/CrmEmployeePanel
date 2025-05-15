@@ -46,7 +46,7 @@ const Dashboard = ({ children, active }) => {
           title: 'Logged out successfully!',
           icon: 'success',
         }).then(() => {
-          sessionStorage.removeItem("Token");
+          localStorage.removeItem("Token");
           sessionStorage.removeItem("employeeId");
           sessionStorage.removeItem("addedBy");
           localStorage.removeItem("Employee");
@@ -64,7 +64,7 @@ const Dashboard = ({ children, active }) => {
   };
 
   useEffect(() => {
-    const tokenId = sessionStorage.getItem('Token');
+    const tokenId = localStorage.getItem('Token');
     if (!tokenId) {
       navigate('/');
     }
@@ -110,6 +110,13 @@ const Dashboard = ({ children, active }) => {
               <li>
                 <button className={`sidebar-link ${active === 'lead' && 'active'}`}>
                 <i className="ri-information-2-fill"></i> &nbsp;Leads
+                </button>
+              </li>
+            </Link>
+            <Link className="navigation-link" to="/pending">
+              <li>
+                <button className={`sidebar-link ${active === 'pending' && 'active'}`}>
+                <i className="ri-information-2-fill"></i> &nbsp;Pending Leads
                 </button>
               </li>
             </Link>

@@ -26,6 +26,7 @@ import ClosedLead from './Pages/ClosedLead';
 import NegativeLead from './Pages/NegativeLead';
 
 import  Calander from './Pages/Calander'
+import PendingLeads from './Pages/PendingLeads';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route  path='/profile' element={<Profile/>}/>
           <Route  path='/card' element={<DynamicCard/>}/>
           <Route  path='/calender' element={<Calander/>}/>
+          <Route  path='/pending' element={<PendingLeads/>}/>
           {/* -------------------------------------------- */}
           <Route  path='/priority' element={<Priority/>}/>
           <Route  path='/source' element={<Source/>}/>
@@ -58,6 +60,7 @@ function App() {
           <Route  path='/closed/fullLeads' element={<FullLeads/>}/>
           <Route  path='/negative/fullLeads' element={<FullLeads/>}/>
           <Route  path='/calender/fullLeads' element={<FullLeads/>}/>
+          <Route  path='/pending/fullLeads' element={<FullLeads/>}/>
           <Route  path='/notes' element={<FollowUpNotes/>}/>
         </Routes>
       </Router>

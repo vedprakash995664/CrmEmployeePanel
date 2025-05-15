@@ -21,7 +21,7 @@ function Leads() {
   const filteredData=leads.filter((item)=>item.closed===false && item.deleted===false && item.negative===false)
   
   useEffect(() => {
-    const tokenId = sessionStorage.getItem('Token');
+    const tokenId = localStorage.getItem('Token');
     if (!tokenId) {
       navigate('/');
     }

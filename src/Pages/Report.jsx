@@ -4,11 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Card } from 'primereact/card';
-import { ProgressBar } from 'primereact/progressbar';
-import { Tag } from 'primereact/tag';
-import { Skeleton } from 'primereact/skeleton';
-import { ProgressSpinner } from 'primereact/progressspinner';
+import { Tag } from 'primereact/tag';  // Add this import statement
 
+import { ProgressBar } from 'primereact/progressbar';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import './CSS/Report.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLeads } from '../Features/LeadSlice';
@@ -18,21 +17,37 @@ function Report() {
   const navigate = useNavigate();
   const APi_Url = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
+
   const [followupData, setFollowUpData] = useState([]);
+  const [pendingLeads, setPendingLeads] = useState([]);
   const [leadsLoading, setLeadsLoading] = useState(true);
   const [followupsLoading, setFollowupsLoading] = useState(true);
+  const [pendingLeadsLoading, setPendingLeadsLoading] = useState(true);
 
   const leads = useSelector((state) => state.leads.leads);
   const filteredData = leads.filter((item) => item);
-
   const currentEmployeeId = sessionStorage.getItem('employeeId');
+
+  // Fetch pending leads from API
+  const fetchPendingLeads = async () => {
+    try {
+      const response = await axios.get(
+        `${APi_Url}/digicoder/crm/api/v1/lead/pendingleads/${currentEmployeeId}`
+      );
+      setPendingLeads(response.data.leads || []);
+    } catch (error) {
+      console.error('Error fetching pending leads:', error);
+    } finally {
+      setPendingLeadsLoading(false);
+    }
+  };
 
   const fetchFollowUps = async () => {
     try {
       const response = await axios.get(
         `${APi_Url}/digicoder/crm/api/v1/followup/getfollowedby/${currentEmployeeId}`
       );
-      setFollowUpData(response.data.followups);
+      setFollowUpData(response.data.followups || []);
     } catch (error) {
       console.error('Error fetching followups:', error);
     } finally {
@@ -41,24 +56,24 @@ function Report() {
   };
 
   // Memoized calculations for better performance
-  const closedLeads = useMemo(() => 
-    leads.filter((lead) => lead.closed === true && lead.negative === false && lead.deleted===false), 
+  const closedLeads = useMemo(() =>
+    leads.filter((lead) => lead.closed === true && lead.negative === false && lead.deleted === false),
     [leads]
   );
 
-  const NegativeLeads = useMemo(() => 
-    leads.filter((lead) => lead.negative === true && lead.deleted===false  && lead.closed===false), 
+  const NegativeLeads = useMemo(() =>
+    leads.filter((lead) => lead.negative === true && lead.deleted === false && lead.closed === false),
     [leads]
   );
 
-  const uniqueTagNames = useMemo(() => 
+  const uniqueTagNames = useMemo(() =>
     [...new Set(
       filteredData
         .map((item) => item.tags || [])
         .flat()
         .map((tag) => tag.tagName)
         .filter((tagName) => tagName)
-    )], 
+    )],
     [filteredData]
   );
 
@@ -80,26 +95,28 @@ function Report() {
   );
 
   useEffect(() => {
-    fetchFollowUps();
-  }, []);
-
-  useEffect(() => {
-    const tokenId = sessionStorage.getItem('Token');
-    if (!tokenId) {
-      navigate('/');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    const loadLeads = async () => {
+    const loadData = async () => {
       try {
-        await dispatch(fetchLeads());
+        await Promise.all([
+          dispatch(fetchLeads()),
+          fetchFollowUps(),
+          fetchPendingLeads()
+        ]);
+      } catch (error) {
+        console.error('Error loading data:', error);
       } finally {
         setLeadsLoading(false);
       }
     };
-    loadLeads();
+    loadData();
   }, [dispatch]);
+
+  useEffect(() => {
+    const tokenId = localStorage.getItem('Token');
+    if (!tokenId) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   const [visible, setVisible] = useState(false);
   const footerContent = (
@@ -113,8 +130,7 @@ function Report() {
     </div>
   );
 
-  // Combined loading state for all data
-  const isLoading = leadsLoading || followupsLoading;
+  const isLoading = leadsLoading || followupsLoading || pendingLeadsLoading;
 
   return (
     <div>
@@ -137,7 +153,7 @@ function Report() {
         ) : (
           <div className="metrics-grid">
             {/* Assigned Leads Card */}
-            <Card className="metric-card">
+            <Card className="metric-card" onClick={()=>navigate('/leads')} style={{cursor:"pointer"}}>
               <div className="metric-content">
                 <i className="pi pi-users metric-icon"></i>
                 <div className="metric-details">
@@ -151,7 +167,7 @@ function Report() {
             </Card>
 
             {/* Completed Leads Card */}
-            <Card className="metric-card success">
+            <Card className="metric-card success" onClick={()=>navigate('/closed')} style={{cursor:"pointer"}}>
               <div className="metric-content">
                 <i className="pi pi-check-circle metric-icon"></i>
                 <div className="metric-details">
@@ -169,8 +185,22 @@ function Report() {
               </div>
             </Card>
 
+            {/* Pending Leads Card */}
+            <Card className="metric-card warning" onClick={()=>navigate('/pending')} style={{cursor:"pointer"}}>
+              <div className="metric-content">
+                <i className="pi pi-clock metric-icon"></i>
+                <div className="metric-details">
+                  <span className="metric-title">Pending Leads</span>
+                  <span className="metric-value">{pendingLeads.length}</span>
+                  <span className="metric-description">
+                    Needs follow-up
+                  </span>
+                </div>
+              </div>
+            </Card>
+
             {/* Negative Leads Card */}
-            <Card className="metric-card warning">
+            <Card className="metric-card danger"onClick={()=>navigate('/negative')} style={{cursor:"pointer"}}>
               <div className="metric-content">
                 <i className="pi pi-exclamation-triangle metric-icon"></i>
                 <div className="metric-details">
@@ -182,7 +212,7 @@ function Report() {
             </Card>
 
             {/* Today's Work Card */}
-            <Card className="metric-card info">
+            <Card className="metric-card info" >
               <div className="metric-content">
                 <i className="pi pi-calendar metric-icon"></i>
                 <div className="metric-details">
@@ -193,18 +223,7 @@ function Report() {
               </div>
             </Card>
 
-            {/* Total Work Card */}
-            {/* <Card className="metric-card ">
-              <div className="metric-content">
-                <i className="pi pi-chart-line metric-icon"></i>
-                <div className="metric-details">
-                  <span className="metric-title">Pending Follow-ups</span>
-                  <span className="metric-value">{followupData.length}</span>
-                  <span className="metric-description">All your activities</span>
-                </div>
-              </div>
-            </Card> */}
-            {/* Total Work Card */}
+            {/* Total Follow-ups Card */}
             <Card className="metric-card primary">
               <div className="metric-content">
                 <i className="pi pi-chart-line metric-icon"></i>
@@ -215,7 +234,6 @@ function Report() {
                 </div>
               </div>
             </Card>
-            <br /><br /><br />
           </div>
         )}
 

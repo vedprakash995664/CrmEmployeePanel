@@ -57,7 +57,7 @@ function MainDashboard() {
   }, [dispatch]);
 
   useEffect(() => {
-    const tokenId = sessionStorage.getItem('Token');
+    const tokenId = localStorage.getItem('Token');
     if (!tokenId) {
       navigate('/');
     }

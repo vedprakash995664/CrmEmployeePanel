@@ -39,7 +39,7 @@ const Login = () => {
           const addedBy = response.data.employee.addedBy;
         const name =response.data.employee
           sessionStorage.setItem("Emp",JSON.stringify(name))
-          sessionStorage.setItem("Token", token);
+          localStorage.setItem("Token", token);
           sessionStorage.setItem("employeeId", employeeId);
           sessionStorage.setItem("addedBy", addedBy);
           
