@@ -12,6 +12,10 @@ import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
 import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import InputAdornment from '@mui/material/InputAdornment';
+import { Search } from '@mui/icons-material';
 import Dashboard from '../Components/Dashboard'
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -26,6 +30,7 @@ function FullLeads() {
   const [unNegativeActionBtn, setUnNegativeActionBtn] = useState(false)
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingFollowUps, setIsLoadingFollowUps] = useState(true);
+  const [tagSearchTerm, setTagSearchTerm] = useState(''); // New state for tag search
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_BOTTOM = 10;
 
@@ -37,7 +42,7 @@ function FullLeads() {
   const [priorityOptions, setPriorityOptions] = useState([]);
   const [sourcesOptions, setSourcesOptions] = useState([]);
   const [leadStatusOptions, setLeadStatusOptions] = useState([]);
-  
+
   const MenuProps = {
     PaperProps: {
       style: {
@@ -93,6 +98,20 @@ function FullLeads() {
     country: formData.Country,
     leadStatus: formData.LeadStatus,
     tags: formData.tags
+  };
+
+  // Filter tags based on search term
+  const filteredTags = tagData.filter(item =>
+    item.tagName.toLowerCase().includes(tagSearchTerm.toLowerCase())
+  );
+
+  const handleTagSearchChange = (event) => {
+    setTagSearchTerm(event.target.value);
+  };
+
+  // Clear search when menu closes
+  const handleTagMenuClose = () => {
+    setTagSearchTerm('');
   };
 
   useEffect(() => {
@@ -454,7 +473,6 @@ function FullLeads() {
       });
     }
   };
-
   return (
     <div>
       <Dashboard active={activeData}>
@@ -631,17 +649,53 @@ function FullLeads() {
                         multiple
                         value={formData.tagNames}
                         onChange={handleTagChange}
+                        onClose={handleTagMenuClose}
                         input={<OutlinedInput label="Tags" />}
                         renderValue={(selected) => selected.join(', ')}
-                        MenuProps={MenuProps}
+                        MenuProps={{
+                          ...MenuProps,
+                          PaperProps: {
+                            style: {
+                              maxHeight: 300,
+                            },
+                          },
+                        }}
                         disabled={isDisabled}
                       >
-                        {tagData.map((item) => (
-                          <MenuItem key={item._id} value={item.tagName}>
-                            <Checkbox checked={formData.tagNames.indexOf(item.tagName) > -1} />
-                            <ListItemText primary={item.tagName} />
+                        {/* Search TextField inside Menu */}
+                        <Box sx={{ p: 1, position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
+                          <TextField
+                            size="small"
+                            placeholder="Search tags..."
+                            value={tagSearchTerm}
+                            onChange={handleTagSearchChange}
+                            fullWidth
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <Search fontSize="small" />
+                                </InputAdornment>
+                              ),
+                            }}
+                            // Prevent menu from closing when clicking on search
+                            onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => e.stopPropagation()}
+                          />
+                        </Box>
+                        
+                        {/* Filtered Menu Items */}
+                        {filteredTags.length > 0 ? (
+                          filteredTags.map((item) => (
+                            <MenuItem key={item._id} value={item.tagName}>
+                              <Checkbox checked={formData.tagNames.indexOf(item.tagName) > -1} />
+                              <ListItemText primary={item.tagName} />
+                            </MenuItem>
+                          ))
+                        ) : (
+                          <MenuItem disabled>
+                            <ListItemText primary="No tags found" />
                           </MenuItem>
-                        ))}
+                        )}
                       </Select>
                     </FormControl>
                   </div>
@@ -685,7 +739,7 @@ function FullLeads() {
               <div className="follow-ups">
                 {isLoadingFollowUps ? (
                   <div className="loader-container" style={{ textAlign: 'center', padding: '20px' }}>
-                    <div className="loader" style={{ 
+                    <div className="loader" style={{
                       border: '4px solid #f3f3f3',
                       borderTop: '4px solid #3498db',
                       borderRadius: '50%',
@@ -715,17 +769,24 @@ function FullLeads() {
                         </div>
                         <div className="follow-ups-txt">
                           <p><b>Message:- </b><span>{followUp.followupMessage}</span></p>
-                          <p><b>Next-FollowUp-Date:- </b> <span>{followUp.followupStatus?.nextFollowupDate || "Not Set"}</span></p>
+                          <p>
+                            <b>Next-FollowUp-Date:- </b>
+                            <span>
+                              {followUp?.nextFollowupDate
+                                ? new Date(followUp.nextFollowupDate).toLocaleDateString('en-GB')
+                                : "Not Set"}
+                            </span>
+                          </p>
                         </div>
                       </div>
                       <hr />
                     </div>
                   ))
                 ) : (
-                  <div className="no-followups" style={{ 
-                    textAlign: 'center', 
-                    padding: '30px', 
-                    backgroundColor: '#f9f9f9', 
+                  <div className="no-followups" style={{
+                    textAlign: 'center',
+                    padding: '30px',
+                    backgroundColor: '#f9f9f9',
                     borderRadius: '8px',
                     margin: '20px 0'
                   }}>

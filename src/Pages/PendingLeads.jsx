@@ -11,10 +11,11 @@ function PendingLeads() {
 
     useEffect(() => {
         const fetchPendingLeads = async () => {
+            const response = await axios.get(
+                `${APi_Url}/digicoder/crm/api/v1/lead/pendingleads/${currentEmployeeId}`
+            );
+            console.log("abc",response)
             try {
-                const response = await axios.get(
-                    `${APi_Url}/digicoder/crm/api/v1/lead/pendingleads/${currentEmployeeId}`
-                );
 
                 const allLeads = response.data.leads || [];
 
