@@ -25,6 +25,7 @@ function DynamicCard({ leadCard, TableTitle }) {
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [tagSearchQuery, setTagSearchQuery] = useState('');
+  const [statusSearchQuery, setStatusSearchQuery] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const tagData = useSelector((state) => state.leads.tag);
@@ -43,6 +44,12 @@ function DynamicCard({ leadCard, TableTitle }) {
   const [selectedTagValues, setSelectedTagValues] = useState(() => {
     const savedTags = localStorage.getItem('selectedTagFilters');
     return savedTags ? JSON.parse(savedTags) : [];
+  });
+
+  // Get stored status filters from localStorage or default to empty array
+  const [selectedStatusValues, setSelectedStatusValues] = useState(() => {
+    const savedStatus = localStorage.getItem('selectedStatusFilters');
+    return savedStatus ? JSON.parse(savedStatus) : [];
   });
 
   // Update URL and localStorage when page changes
@@ -66,7 +73,6 @@ function DynamicCard({ leadCard, TableTitle }) {
   // Fetch tags when component mounts
   useEffect(() => {
     dispatch(fetchTags());
-    console.log('Ved',leadCard)
   }, [dispatch]);
 
   useEffect(() => {
@@ -82,13 +88,17 @@ function DynamicCard({ leadCard, TableTitle }) {
     } else {
       setSelectedRows([]);
     }
-  }, [selectAll, debouncedSearchQuery, selectedTagValues]);
+  }, [selectAll, debouncedSearchQuery, selectedTagValues, selectedStatusValues]);
 
   // Save selected tags to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('selectedTagFilters', JSON.stringify(selectedTagValues));
-    
   }, [selectedTagValues]);
+
+  // Save selected status to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('selectedStatusFilters', JSON.stringify(selectedStatusValues));
+  }, [selectedStatusValues]);
 
   const tagsOptions = useMemo(() => {  
     return tagData
@@ -97,6 +107,25 @@ function DynamicCard({ leadCard, TableTitle }) {
       )
       .map(tag => ({ name: tag.tagName, value: tag.tagName }));
   }, [tagData, tagSearchQuery]);
+
+  // Generate status options from available lead data
+  const statusOptions = useMemo(() => {
+    if (!leadCard) return [];
+    
+    const uniqueStatuses = new Set();
+    leadCard.forEach(lead => {
+      if (lead.leadStatus?.leadStatusText) {
+        uniqueStatuses.add(lead.leadStatus.leadStatusText);
+      }
+    });
+    
+    return Array.from(uniqueStatuses)
+      .filter(status => 
+        status.toLowerCase().includes(statusSearchQuery.toLowerCase())
+      )
+      .map(status => ({ name: status, value: status }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [leadCard, statusSearchQuery]);
 
   const openModal = (isEdit) => {
     setEditMode(isEdit);
@@ -127,7 +156,6 @@ function DynamicCard({ leadCard, TableTitle }) {
 
   const closeNote = () => {
     setNoteOpen(false);
-
   };
 
   const handleSearchChange = (event) => {
@@ -139,16 +167,21 @@ function DynamicCard({ leadCard, TableTitle }) {
     setTagSearchQuery(event.target.value);
   };
 
+  const handleStatusSearchChange = (event) => {
+    setStatusSearchQuery(event.target.value);
+  };
+
   // Function to clear all filters
   const clearAllFilters = () => {
     setSelectedTagValues([]);
+    setSelectedStatusValues([]);
     setSearchQuery('');
     setTagSearchQuery('');
+    setStatusSearchQuery('');
     handlePageChange(1); // Reset to page 1 when filters are cleared
   };
 
   // Combined filtering function with memoization
-
   const filteredLeads = useMemo(() => {
     if (!leadCard) return [];
   
@@ -181,11 +214,22 @@ function DynamicCard({ leadCard, TableTitle }) {
         
         if (!hasAllSelectedTags) return false;
       }
+
+      // 3. Match selected status (if any are selected)
+      if (selectedStatusValues.length > 0) {
+        if (!lead.leadStatus?.leadStatusText) return false;
+        
+        const hasSelectedStatus = selectedStatusValues.some(selectedStatus => {
+          return lead.leadStatus.leadStatusText.toLowerCase() === selectedStatus.toLowerCase();
+        });
+        
+        if (!hasSelectedStatus) return false;
+      }
       
       // The lead has passed all filter criteria
       return true;
     });
-  }, [leadCard, debouncedSearchQuery, selectedTagValues]);
+  }, [leadCard, debouncedSearchQuery, selectedTagValues, selectedStatusValues]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
@@ -205,8 +249,8 @@ function DynamicCard({ leadCard, TableTitle }) {
     setCurrentPage(pageNumber);
   };
   
-  // Custom header template for MultiSelect
-  const panelHeaderTemplate = (options) => {
+  // Custom header template for Tag MultiSelect
+  const tagPanelHeaderTemplate = (options) => {
     return (
       <div>
         <div className="panelHeaderTemplate">
@@ -219,6 +263,27 @@ function DynamicCard({ leadCard, TableTitle }) {
             placeholder="Search tags..."
             value={tagSearchQuery}
             onChange={handleTagSearchChange}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  // Custom header template for Status MultiSelect
+  const statusPanelHeaderTemplate = (options) => {
+    return (
+      <div>
+        <div className="panelHeaderTemplate">
+          <span className="font-bold">Status Filters</span>
+        </div>
+        <div className="p-2 flex justify-between items-center">
+          <input
+            type="text"
+            className="w-full p-2 border border-gray-300 rounded"
+            placeholder="Search status..."
+            value={statusSearchQuery}
+            onChange={handleStatusSearchChange}
             onClick={(e) => e.stopPropagation()}
           />
         </div>
@@ -243,7 +308,7 @@ function DynamicCard({ leadCard, TableTitle }) {
             placeholder="Filter by Tags"
             className="custom-input custom-multiselect"
             panelStyle={{ width: "200px" }}
-            panelHeaderTemplate={panelHeaderTemplate}
+            panelHeaderTemplate={tagPanelHeaderTemplate}
             scrollHeight="200px"
             display="chip"
             itemTemplate={(option) => {
@@ -256,7 +321,46 @@ function DynamicCard({ leadCard, TableTitle }) {
             }}
           />
           {selectedTagValues.length > 0 && (
-            <button className="clear-btn" onClick={clearAllFilters}>
+            <button className="clear-btn" onClick={() => {
+              setSelectedTagValues([]);
+              handlePageChange(1);
+            }}>
+              <i className="ri-close-circle-line"></i>
+            </button>
+          )}
+        </div>
+
+        <div className="custom-filter-box">
+          <MultiSelect
+            value={selectedStatusValues}
+            options={statusOptions}
+            optionLabel="name"
+            onChange={(e) => {
+              setSelectedStatusValues(e.value);
+              setSelectAll(false);
+              handlePageChange(1); // Reset to page 1 when status filters change
+            }}
+            filter
+            placeholder="Filter by Status"
+            className="custom-input custom-multiselect"
+            panelStyle={{ width: "200px" }}
+            panelHeaderTemplate={statusPanelHeaderTemplate}
+            scrollHeight="200px"
+            display="chip"
+            itemTemplate={(option) => {
+              // Custom template for each option in the dropdown
+              return (
+                <div className="custom-option-item">
+                  <span className="option-label">{option.name}</span>
+                </div>
+              );
+            }}
+          />
+          {selectedStatusValues.length > 0 && (
+            <button className="clear-btn" onClick={() => {
+              setSelectedStatusValues([]);
+              handlePageChange(1);
+            }}>
               <i className="ri-close-circle-line"></i>
             </button>
           )}
@@ -279,6 +383,14 @@ function DynamicCard({ leadCard, TableTitle }) {
             </button>
           )}
         </div>
+{/* 
+        {(selectedTagValues.length > 0 || selectedStatusValues.length > 0 || searchQuery) && (
+          <div className="custom-filter-box">
+            <button className="clear-all-filters-btn" onClick={clearAllFilters}>
+              Clear All Filters
+            </button>
+          </div>
+        )} */}
       </div>
 
       {loading ? (
