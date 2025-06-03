@@ -66,6 +66,7 @@ function DynamicCard({ leadCard, TableTitle }) {
   // Fetch tags when component mounts
   useEffect(() => {
     dispatch(fetchTags());
+    console.log('Ved',leadCard)
   }, [dispatch]);
 
   useEffect(() => {
@@ -86,6 +87,7 @@ function DynamicCard({ leadCard, TableTitle }) {
   // Save selected tags to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('selectedTagFilters', JSON.stringify(selectedTagValues));
+    
   }, [selectedTagValues]);
 
   const tagsOptions = useMemo(() => {  
@@ -298,7 +300,7 @@ function DynamicCard({ leadCard, TableTitle }) {
                         <p><span className='card-heading'>Mobile:- </span><span>{lead.phone}</span></p>
                         <div className="priority-source">
                           <p><span className='card-heading'>Priority:- </span><span>{lead.priority?.priorityText}</span></p>
-                          <p><span className='card-heading'>Source:- </span><span>{lead.sources?.leadSourcesText}</span></p>
+                          <p><span className='card-heading'>Status:- </span><span>{lead.leadStatus?.leadStatusText}</span></p>
                         </div>
                         <div className="tags">
                           {lead.tags && Array.isArray(lead.tags) && lead.tags.map((tag, index) => (
