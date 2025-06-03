@@ -115,7 +115,7 @@ function DynamicCard({ leadCard, TableTitle }) {
     const uniqueStatuses = new Set();
     leadCard.forEach(lead => {
       if (lead.leadStatus?.leadStatusText) {
-        uniqueStatuses.add(lead.leadStatus.leadStatusText);
+        uniqueStatuses.add(lead.leadStatus.leadStatusText || "NA");
       }
     });
     
@@ -217,10 +217,10 @@ function DynamicCard({ leadCard, TableTitle }) {
 
       // 3. Match selected status (if any are selected)
       if (selectedStatusValues.length > 0) {
-        if (!lead.leadStatus?.leadStatusText) return false;
+        if (!lead.leadStatus?.leadStatusText || "NA") return false;
         
         const hasSelectedStatus = selectedStatusValues.some(selectedStatus => {
-          return lead.leadStatus.leadStatusText.toLowerCase() === selectedStatus.toLowerCase();
+          return lead.leadStatus.leadStatusText || "NA".toLowerCase() === selectedStatus.toLowerCase();
         });
         
         if (!hasSelectedStatus) return false;
@@ -412,7 +412,7 @@ function DynamicCard({ leadCard, TableTitle }) {
                         <p><span className='card-heading'>Mobile:- </span><span>{lead.phone}</span></p>
                         <div className="priority-source">
                           <p><span className='card-heading'>Priority:- </span><span>{lead.priority?.priorityText}</span></p>
-                          <p><span className='card-heading'>Status:- </span><span>{lead.leadStatus?.leadStatusText}</span></p>
+                          <p><span className='card-heading'>Status:- </span><span>{lead.leadStatus?.leadStatusText || "NA"}</span></p>
                         </div>
                         <div className="tags">
                           {lead.tags && Array.isArray(lead.tags) && lead.tags.map((tag, index) => (
