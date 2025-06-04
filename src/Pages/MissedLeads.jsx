@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import DynamicCard from '../Components/DynamicCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllFollowUps } from '../Features/LeadSlice';
+// Import Switch if you're using Material-UI
+// import { Switch } from '@mui/material';
 
 function MissedLeads() {
   const [isNoteVisible, setIsNoteVisible] = useState(false);
@@ -15,9 +17,9 @@ function MissedLeads() {
   const [buttonTitle, setButtonTitle] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [leadData, setLeadData] = useState([]);
-  const [tableTitle, setTableTitle] = useState('Missed Leads')
-  const navigate = useNavigate()
-  const user = 'Ved Prakash';
+  const [tableTitle, setTableTitle] = useState('Missed Leads');
+  const [note, setNote] = useState(''); // Added missing state
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const followUps = useSelector((state) => state.leads.followups);
   const [isScheduled, setIsScheduled] = useState(false);
@@ -25,38 +27,47 @@ function MissedLeads() {
 
   // Handle the switch toggle to show date input
   const handleSwitchChange = (event) => {
-    setIsScheduled(event.target.checked); // Update the state based on switch value
+    setIsScheduled(event.target.checked);
   };
 
-
+  // Check authentication
   useEffect(() => {
     const tokenId = localStorage.getItem('Token');
     if (!tokenId) {
-      navigate('/')
+      navigate('/');
     }
+  }, [navigate]);
 
-  }, [navigate])
+  // Fetch follow-ups data
+  useEffect(() => {  
+    dispatch(fetchAllFollowUps());
+  }, [dispatch]);
+
+  // Process leads data
+  const today = new Date().toISOString().split("T")[0];
+  const leadFinaldata = followUps.followups?.filter((item) => 
+    item.nextFollowupDate?.split("T")[0] < today
+  );
+  const leadIds = leadFinaldata?.map((item) => item.leadId);
+  
+  // Filter finalData to show only closed leads (closed: true)
+  const finalData = leadIds?.filter((lead) => lead?.closed === false) || [];
+
   const handleEdit = (missed) => {
-    openModal(true);
+    openModal();
     setLeadData(missed);
-  }
+  };
+
   const openModal = () => {
     setButtonTitle("Update Leads");
     setTitle("Update Leads");
-    setIsModalOpen(true);  //open modal
-  }
+    setIsModalOpen(true);
+  };
 
   const closeModal = () => {
     setIsModalOpen(false);
-  }
+  };
 
-  /////-------------------------
-   useEffect(() => {  
-      dispatch(fetchAllFollowUps());
-    }, [dispatch]);
-  const today=new Date().toISOString().split("T")[0]
-  const leadFinaldata=followUps.followups?.filter((item)=>item.nextFollowupDate?.split("T")[0]<today)
-  const finalData=leadFinaldata?.map((item)=>item.leadId)
   const handleNoteChange = (e) => {
     setStickyNote(e.target.value);
   };
@@ -75,18 +86,24 @@ function MissedLeads() {
     <div>
       <Dashboard active={'missedLead'}>
         <div className="content">
-          {/* {renderContent()} */}
           <>
             {/* Table Section */}
             <div className="missed-table-container">
               <DynamicTable lead={finalData} TableTitle={tableTitle} />
             </div>
             <div className='missed-card-container'>
-             <DynamicCard leadCard={finalData} TableTitle={tableTitle}/> 
+              <DynamicCard leadCard={finalData} TableTitle={tableTitle}/> 
             </div>
- 
-            {/* modal compoent */}
-            <Modal isOpen={isModalOpen} onClose={closeModal} title={title} buttonTitle={buttonTitle} leadData={leadData} />
+
+            {/* Modal component */}
+            <Modal 
+              isOpen={isModalOpen} 
+              onClose={closeModal} 
+              title={title} 
+              buttonTitle={buttonTitle} 
+              leadData={leadData} 
+            />
+
             {/* Conditional rendering for sticky note */}
             {isNoteVisible && (
               <div className="sticky-note-container">
@@ -118,13 +135,19 @@ function MissedLeads() {
                     </select>
                   </label>
                 </div>
+
                 {/* Switch and conditional rendering for the date input */}
                 <div>
-                  <Switch {...label} onChange={handleSwitchChange} /> <label>Set Reminder</label>
+                  {/* Uncomment and import Switch component */}
+                  {/* <Switch {...label} onChange={handleSwitchChange} /> */}
+                  <input 
+                    type="checkbox" 
+                    onChange={handleSwitchChange} 
+                    checked={isScheduled}
+                  />
+                  <label>Set Reminder</label>
                   {isScheduled && (
-
                     <input type="date" className="date-input" />
-
                   )}
                 </div>
 
@@ -138,7 +161,7 @@ function MissedLeads() {
         </div>
       </Dashboard>
     </div>
-  )
+  );
 }
 
-export default MissedLeads
+export default MissedLeads;
