@@ -7,8 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import DynamicCard from '../Components/DynamicCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllFollowUps } from '../Features/LeadSlice';
-// Import Switch if you're using Material-UI
-// import { Switch } from '@mui/material';
 
 function MissedLeads() {
   const [isNoteVisible, setIsNoteVisible] = useState(false);
@@ -51,13 +49,7 @@ function MissedLeads() {
   const leadIds = leadFinaldata?.map((item) => item.leadId);
   
   // Filter finalData to show only closed leads (closed: true)
-  const finalData = leadIds?.filter((lead) => lead?.closed === false) || [];
-
-  const handleEdit = (missed) => {
-    openModal();
-    setLeadData(missed);
-  };
-
+  const finalData = leadIds?.filter((lead) => lead?.closed === false  && lead?.deleted===false) || [];
   const openModal = () => {
     setButtonTitle("Update Leads");
     setTitle("Update Leads");
@@ -135,11 +127,7 @@ function MissedLeads() {
                     </select>
                   </label>
                 </div>
-
-                {/* Switch and conditional rendering for the date input */}
                 <div>
-                  {/* Uncomment and import Switch component */}
-                  {/* <Switch {...label} onChange={handleSwitchChange} /> */}
                   <input 
                     type="checkbox" 
                     onChange={handleSwitchChange} 
