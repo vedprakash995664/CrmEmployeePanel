@@ -87,8 +87,6 @@ export const fetchLeadStatus = () => async (dispatch) => {
     const APi_Url=import.meta.env.VITE_API_URL
     const addedBy = sessionStorage.getItem('addedBy');
     const response = await axios.get(`${APi_Url}/digicoder/crm/api/v1/leadstatus/getall/${addedBy}`);
-    
-    
     dispatch(setLeadStatus(response.data.leadStatus));
     // console.log(response.data.leadStatus);
     

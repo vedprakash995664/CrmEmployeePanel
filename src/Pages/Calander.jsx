@@ -107,7 +107,6 @@ const LeadCalendar = () => {
   if (error) return <Dashboard><div>Error: {error}</div></Dashboard>;
   const handleView = (rowData) => {
     const viewdata = rowData.leadId;
-    console.log(viewdata.leadId);
     const TableTitle='calender'
     navigate('fullLeads', { state: { viewdata, TableTitle} });
 };

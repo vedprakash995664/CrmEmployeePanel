@@ -14,7 +14,7 @@ function PendingLeads() {
             const response = await axios.get(
                 `${APi_Url}/digicoder/crm/api/v1/lead/pendingleads/${currentEmployeeId}`
             );
-            console.log("abc",response)
+
             try {
 
                 const allLeads = response.data.leads || [];

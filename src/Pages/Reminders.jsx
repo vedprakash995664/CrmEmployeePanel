@@ -24,10 +24,6 @@ function Reminders() {
 
   }, [navigate])
 
-  const handleEdit = (reminder) => {   
-    openModal(true);
-    setLeadData(reminder);
-  }
   const openModal = () => {
     setTitle("Update Leads");
     setButtonTitle("Update Leads")
